@@ -11,6 +11,7 @@ add_subdirectory(UnitTest)
 aux_source_directory(Render RENDER_SRC)
 aux_source_directory(GUI GUI_SRC)
 aux_source_directory(ThirdPartyLib/imgui/ IMGUI_SRC)
+aux_source_directory(ThirdPartyLib/tinyrender TINY_RENDER_SRC)
 include_directories(
         .
         Render/
@@ -18,13 +19,15 @@ include_directories(
         ThirdPartyLib/
         ThirdPartyLib/stb/
         ThirdPartyLib/imgui
+        ThirdPartyLib/tinyrender
 )
 add_executable(TinyRenderPlus
         ${RENDER_SRC}
         ${GUI_SRC}
         ${IMGUI_SRC}
+        ${TINY_RENDER_SRC}
         main.cpp
-)
+        )
 
 target_link_libraries(TinyRenderPlus glfw3 GL dl X11 pthread)
 #set_target_properties(TinyRenderPlus PROPERTIES LINKER_LANGUAGE CXX)

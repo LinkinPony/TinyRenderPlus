@@ -1,0 +1,1 @@
+# All files in this folder are copied from https://github.com/ssloy/tinyrenderer

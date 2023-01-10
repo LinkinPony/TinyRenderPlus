@@ -5,7 +5,12 @@
 #include <scene.h>
 void Scene::nextFrame() {
   //TODO: lots of work to do
-  memset(image_data_.get(),0xff,sizeof(char) * width_ * height_ * 3);
+  for(int i = 0;i < width_;i++){
+    for(int j = 0;j < height_;j++){
+      render_buffer_.set(i,j, TGAColor((i+j) % 256,(i^j) % 256,(i&j) % 256,(i*j) % 256));
+    }
+  }
+//  memset(render_buffer_.data,0xff,sizeof(render_buffer_.data));
 
 }
 int Scene::get_height() {
@@ -23,7 +28,7 @@ void Scene::set_width(int width) {
   aspect_ratio_ = static_cast<float>(width_) / height_;
 }
 void Scene::genTextureInit() {
-  glGenTextures(1, &render_result_);
+    glGenTextures(1, &render_result_);
   glBindTexture(GL_TEXTURE_2D, render_result_);
 
   // Setup filtering parameters for display
@@ -42,10 +47,10 @@ bool Scene::loadTextureFromMemory(){
 //  raw_image_width = ShaderGlobal::current_drawer->get_width();
 //  raw_image_height = ShaderGlobal::current_drawer->get_height();
 //  image_data = ShaderGlobal::current_drawer -> data;
-  if (image_data_ == nullptr)
+  if (render_buffer_.data == nullptr)
     return false;
   // Create a OpenGL texture identifier
-  glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width_, height_, 0, GL_BGR_EXT, GL_UNSIGNED_BYTE, image_data_.get());
+  glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width_, height_, 0, GL_BGR_EXT, GL_UNSIGNED_BYTE, render_buffer_.data);
   return true;
 }
 

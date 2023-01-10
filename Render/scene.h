@@ -15,6 +15,7 @@
 #if defined(_MSC_VER) && (_MSC_VER >= 1900) && !defined(IMGUI_DISABLE_WIN32_FUNCTIONS)
 #pragma comment(lib, "legacy_stdio_definitions")
 #endif
+#include <tgaimage.h>
 class Scene {
  private:
   int width_;
@@ -24,16 +25,16 @@ class Scene {
   float aspect_ratio_;//aspect_ration = width / height
 
   std::unique_ptr<float[]>zbuffer_;
-  std::unique_ptr<char[]>image_data_;
 
   GLuint render_result_;
+  TGAImage render_buffer_;
 
  public:
   Scene(int width,int height,float fov)
   :width_(width),height_(height),fov_(fov){
     aspect_ratio_ = static_cast<float>(width) / height;
     zbuffer_ = std::make_unique<float[]>(width * height);
-    image_data_ = std::make_unique<char[]>(width * height * 4);
+    render_buffer_ = TGAImage(width,height,TGAImage::RGB);
   }
 
   bool loadTextureFromMemory();
