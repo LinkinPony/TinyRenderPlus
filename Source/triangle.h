@@ -6,8 +6,13 @@
 #define TINYRENDERPLUS__TRIANGLE_H_
 #include <eigen3/Eigen/Eigen>
 class Triangle {
-  Eigen::Vector3f p1_,p2_,p3_;//Vertex of triangle
+ public:
+  Eigen::Vector4f v_[3];//vertex, (x,y,z,w)
+  Eigen::Vector3f color_[3];
+  Eigen::Vector3f normal_[3];
+  Eigen::Vector2f texture_coords_[3];
 
+  int material_id_;//TODO: this may be useless
 
 };
 

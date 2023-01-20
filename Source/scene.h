@@ -16,7 +16,12 @@
 #pragma comment(lib, "legacy_stdio_definitions")
 #endif
 #include <tgaimage.h>
+#include <render.h>
+#include <shader.h>
+#include <shader_data.h>
 class Scene {
+ private:
+  const float INF = 1e18;
  private:
   int width_;
   int height_;
@@ -24,17 +29,37 @@ class Scene {
   float fov_;//vertical fov
   float aspect_ratio_;//aspect_ration = width / height
 
-  std::unique_ptr<float[]>zbuffer_;
-
   GLuint render_result_;
   TGAImage render_buffer_;
+ private:
+  std::unique_ptr<Shader>shader_;
+  //TODO: vector seems a little bit slow, need profiling
+  std::vector<float> z_buffer_;
+  std::vector<ShaderVaryingData>fragment_vary_data_;
+  //todo: use point. avoid copy
+  ShaderUniformData shader_uniform_data_;
+  std::vector<std::shared_ptr<Object>> objects_;
+  std::vector<std::vector<ShaderVaryingData> > object_vertex_vary_data_;
+ private:
+  //draw triangle for specific object and it's face.
 
+  void initVertexVaryingData();
+  void processSingleVertex(ShaderVaryingData & data);
+  void processAllVertex();
+  void processSingleTriange(ShaderVaryingData & data);
+  void processAllTriangle();
+  void processSingleFragment(ShaderVaryingData & data);
+  void processAllFragment();
+  void drawSingleFragment(const ShaderVaryingData & data);
+  void drawAllFragment();
+//  RenderInterface render;
  public:
   Scene(int width,int height,float fov)
   :width_(width),height_(height),fov_(fov){
     aspect_ratio_ = static_cast<float>(width) / height;
-    zbuffer_ = std::make_unique<float[]>(width * height);
+    z_buffer_.assign(width * height,INF);
     render_buffer_ = TGAImage(width,height,TGAImage::RGB);
+    genTextureInit();
   }
 
   bool loadTextureFromMemory();
@@ -42,12 +67,14 @@ class Scene {
 
   void nextFrame();
   void addObject(std::unique_ptr<Object> obj);
+ public:
   int get_width();
   int get_height();
   GLuint get_render_result();
   void set_width();
   void set_height(int height);
   void set_width(int width);
+
 };
 
 #endif //TINYRENDERPLUS_RENDER_SCENE_H_

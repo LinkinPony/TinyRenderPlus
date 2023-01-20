@@ -100,7 +100,7 @@ int Editor::run() {
     ImGui_ImplGlfw_NewFrame();
     ImGui::NewFrame();
     if(show_image){
-      ImGui::Begin("Render result");
+      ImGui::Begin("result");
       ImGui::Text("Texture pointer = %p", scene_->get_render_result());
       ImGui::Text("size = %d x %d", scene_->get_width(), scene_->get_height());
 //      ImGui::SliderFloat("View Position x", &view_center.x, 0.0f, 1.0f);
