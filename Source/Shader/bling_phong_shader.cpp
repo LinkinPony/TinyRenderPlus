@@ -71,4 +71,7 @@ void BlingPhongShader::fragmentShader(ShaderVaryingData &data,const ShaderUnifor
 }
 void BlingPhongShader::vertexShader(ShaderVaryingData &data,const ShaderUniformData & u_data) {
   //TODO: finish it
+  for(int i = 0;i < 3;i++){
+    data.vertex[i] = u_data.camera_MVP * data.vertex[i];
+  }
 }

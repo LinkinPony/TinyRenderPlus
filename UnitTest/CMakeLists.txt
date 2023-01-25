@@ -1,6 +1,25 @@
 cmake_minimum_required(VERSION 3.14)
 project(UnitTest)
 
+#---add origin project---
+aux_source_directory(../Source SOURCE_SRC)
+aux_source_directory(../GUI GUI_SRC)
+aux_source_directory(../ThirdPartyLib/imgui/ IMGUI_SRC)
+aux_source_directory(../ThirdPartyLib/tinyrender TINY_RENDER_SRC)
+include_directories(
+        ../
+        ../Source
+        ../Source/Shader
+        ../Source/Render
+        ../GUI
+        ../ThirdPartyLib
+        ../ThirdPartyLib/stb
+        ../ThirdPartyLib/imgui
+        ../ThirdPartyLib/tinyrender
+)
+
+#---finish adding---
+
 # GoogleTest requires at least C++14
 set(CMAKE_CXX_STANDARD 20)
 
@@ -17,11 +36,16 @@ enable_testing()
 
 add_executable(
         UnitTest
+        ${SOURCE_SRC}
+        ${GUI_SRC}
+        ${IMGUI_SRC}
+        ${TINY_RENDER_SRC}
         gtest_demo.cpp
-)
+        object_test.cpp)
 target_link_libraries(
         UnitTest
         GTest::gtest_main
+        glfw3 GL dl X11 pthread
 )
 
 include(GoogleTest)

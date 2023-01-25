@@ -22,6 +22,7 @@ struct ShaderUniformData{
   //according to uniform in shader. should only constract once.
   std::vector<TGAImage> u_texture;//texture for each object. indexed with object id.
   std::vector<TGAImage> u_diffuse;//diffuse map for each object. indexed with object id.
+  Eigen::Matrix4f camera_MVP;
 };
 
 

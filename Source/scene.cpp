@@ -8,12 +8,13 @@ void Scene::initVertexVaryingData(){
   //TODO: change function name
   object_vertex_vary_data_.clear();
   fragment_vary_data_.clear();
-  for(auto objs:objects_){
+  for(const auto& objs:objects_){
     std::vector<ShaderVaryingData> temp_vec;
     temp_vec.reserve((std::size_t)objs->triangles_.size());
-    for(auto it:objs->triangles_){
+    for(const auto& it:objs->triangles_){
       temp_vec.emplace_back(it);
     }
+    object_vertex_vary_data_.push_back(temp_vec);
   }
 }
 
@@ -125,6 +126,9 @@ bool Scene::loadTextureFromMemory() {
 
 GLuint Scene::get_render_result() {
   return render_result_;
+}
+void Scene::addObject(std::shared_ptr<Object> obj) {
+  objects_.emplace_back(obj);
 }
 
 

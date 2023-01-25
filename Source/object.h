@@ -15,12 +15,16 @@ class Object {
   std::string name_;
   Eigen::Vector4f position_;//Object's position in world coods
   Eigen::Vector3f direction_;//Object's direction vector. Need normalize.
-  std::vector<Triangle> triangles_;//vertexs
+  std::vector<Triangle> triangles_;//
   TGAImage diffuse_map_;
   TGAImage normal_map_;
   TGAImage specular_map_;
  public:
   int readObjFromFile(const std::string& filename);
+  Object(){}
+  Object(const std::string & filename){
+    readObjFromFile(filename);
+  }
 };
 
 #endif //TINYRENDERPLUS_RENDER_OBJECT_H_

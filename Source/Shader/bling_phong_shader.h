@@ -5,7 +5,7 @@
 #ifndef TINYRENDERPLUS_SOURCE_SHADER_BLING_PHONG_SHADER_H_
 #define TINYRENDERPLUS_SOURCE_SHADER_BLING_PHONG_SHADER_H_
 #include <shader.h>
-class BlingPhongShader : Shader {
+class BlingPhongShader : public Shader {
 
  public:
   ~BlingPhongShader() override = default;

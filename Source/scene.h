@@ -19,6 +19,7 @@
 #include <render.h>
 #include <shader.h>
 #include <shader_data.h>
+#include <memory>
 class Scene {
  private:
   const float INF = 1e18;
@@ -54,8 +55,8 @@ class Scene {
   void drawAllFragment();
 //  RenderInterface render;
  public:
-  Scene(int width,int height,float fov)
-  :width_(width),height_(height),fov_(fov){
+  Scene(int width,int height,float fov,std::unique_ptr<Shader>shader)
+  :width_(width),height_(height),fov_(fov),shader_(std::move(shader)){
     aspect_ratio_ = static_cast<float>(width) / height;
     z_buffer_.assign(width * height,INF);
     render_buffer_ = TGAImage(width,height,TGAImage::RGB);
@@ -66,12 +67,11 @@ class Scene {
   void genTextureInit();
 
   void nextFrame();
-  void addObject(std::unique_ptr<Object> obj);
+  void addObject(std::shared_ptr<Object> obj);
  public:
   int get_width();
   int get_height();
   GLuint get_render_result();
-  void set_width();
   void set_height(int height);
   void set_width(int width);
 
