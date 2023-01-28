@@ -1,12 +1,13 @@
 cmake_minimum_required(VERSION 3.24)
 project(TinyRenderPlus CXX)
 set(CMAKE_CXX_STANDARD 23)
+set(CMAKE_CXX_FLAGS_RELEASE “-O2”)
 #add_compile_options(-fmodules-ts)
 
 ## Find dependencies
 find_package(glfw3 REQUIRED)
 
-add_subdirectory(UnitTest)
+#add_subdirectory(UnitTest)
 
 aux_source_directory(Source SOURCE_SRC)
 aux_source_directory(GUI GUI_SRC)

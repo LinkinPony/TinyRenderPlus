@@ -51,7 +51,7 @@ class Scene {
   void processAllTriangle();
   void processSingleFragment(ShaderVaryingData & data);
   void processAllFragment();
-  void drawSingleFragment(const ShaderVaryingData & data);
+  void drawSingleFragment(ShaderVaryingData & data);
   void drawAllFragment();
 //  RenderInterface render;
  public:
@@ -74,7 +74,7 @@ class Scene {
   GLuint get_render_result();
   void set_height(int height);
   void set_width(int width);
-
+  void set_camera_mvp_matrix(const Eigen::Matrix4f &mat);
 };
 
 #endif //TINYRENDERPLUS_RENDER_SCENE_H_

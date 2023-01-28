@@ -8,8 +8,6 @@
 
 class Transform {
  public:
-  static Eigen::Matrix4f identityMatrix4();
-  static Eigen::Matrix3f identityMatrix3();
   static Eigen::Matrix4f viewTrans(const Eigen::Vector3f & e,
                                    const Eigen::Vector3f & c,
                                    const Eigen::Vector3f & t);

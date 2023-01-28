@@ -31,11 +31,12 @@ void Scene::processAllVertex() {
 }
 void Scene::processSingleTriange(ShaderVaryingData &data) {
   const auto & vertex = data.vertex;
-  int lx = std::max(std::min({vertex[0].x(),vertex[1].x(),vertex[2].x()}),0.f);
-  int rx = std::min(std::max({vertex[0].x(),vertex[1].x(),vertex[2].x()}),get_width()-1.f);
-  int ly = std::max(std::min({vertex[0].y(),vertex[1].y(),vertex[2].y()}),0.f);
-  int ry = std::min(std::max({vertex[0].y(),vertex[1].y(),vertex[2].y(),}),get_height()-1.f);
   int width = get_width();
+  int height = get_height();
+  int lx = std::max(std::min({vertex[0].x(),vertex[1].x(),vertex[2].x()}),0.f);
+  int rx = std::min(std::max({vertex[0].x(),vertex[1].x(),vertex[2].x()}),width-1.f);
+  int ly = std::max(std::min({vertex[0].y(),vertex[1].y(),vertex[2].y()}),0.f);
+  int ry = std::min(std::max({vertex[0].y(),vertex[1].y(),vertex[2].y(),}),height-1.f);
   for(int x = lx;x <= rx;x++){
     for(int y = ly;y <= ry;y++){
       auto temp_data = data;
@@ -60,7 +61,7 @@ void Scene::processAllFragment() {
     processSingleFragment(it);
   }
 }
-void Scene::drawSingleFragment(const ShaderVaryingData &data) {
+void Scene::drawSingleFragment(ShaderVaryingData &data) {
   if(data.skip){
     return;
   }
@@ -68,9 +69,10 @@ void Scene::drawSingleFragment(const ShaderVaryingData &data) {
   int y = data.coord_y;
   auto & color = data.output_color;
   render_buffer_.set(x,y,color);
+//  data.debugPrint();
 }
 void Scene::drawAllFragment() {
-  for(const auto & it:fragment_vary_data_){
+  for(auto & it:fragment_vary_data_){
     drawSingleFragment(it);
   }
 }
@@ -129,6 +131,9 @@ GLuint Scene::get_render_result() {
 }
 void Scene::addObject(std::shared_ptr<Object> obj) {
   objects_.emplace_back(obj);
+}
+void Scene::set_camera_mvp_matrix(const Eigen::Matrix4f &mat) {
+  shader_uniform_data_.camera_MVP = mat;
 }
 
 

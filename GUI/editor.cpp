@@ -2,11 +2,13 @@
 // Created by linkinpony on 23-1-8.
 //
 
-#include "editor.h"
+#include <editor.h>
+#include <transform.h>
 #ifndef STB_IMAGE_IMPLEMENTATION
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"
 #endif
+
 static void glfw_error_callback(int error, const char* description)
 {
   fprintf(stderr, "Glfw Error %d: %s\n", error, description);
@@ -159,5 +161,18 @@ int Editor::run() {
   return 0;
 }
 void Editor::loadScene(std::unique_ptr<Scene> scene) {
+  //TODO: move this to somewhere else
   this->scene_ = std::move(scene);
+  Eigen::Vector3f camera_position(1000,1000,1000);
+  Eigen::Vector3f view_center(1,1,1);
+  auto matrix = Transform::getMVPMatrix(
+    camera_position,
+    view_center,
+    scene_->get_width(),
+    scene_->get_height());
+  scene_->set_camera_mvp_matrix(matrix);
+  auto light_position = Eigen::Vector3f(10000,10000,10000);
+  float light_intensity = 2.3e8;
+  auto light1 = Light(light_position,light_intensity);
+  scene_->nextFrame();
 }

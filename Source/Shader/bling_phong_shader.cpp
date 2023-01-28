@@ -48,9 +48,12 @@ void BlingPhongShader::fragmentShader(ShaderVaryingData &data,const ShaderUnifor
     cur_position += (vertex[i] * bary[i]);
     cur_norm = cur_norm + data.norm[i] * bary[i];
   }
-  data.texture_color = diffuse(diffuse_uv,data.object_id);
+  //TODO: This code will cause SIGSEGV
+//  data.texture_color = diffuse(diffuse_uv,data.object_id);
+  data.texture_color = TGAColor(100,100,100,100);
   //diffuse light
-
+  data.output_color = data.texture_color;
+  return;
   float total_light;
 
   for(auto light:data.lights){
@@ -58,14 +61,17 @@ void BlingPhongShader::fragmentShader(ShaderVaryingData &data,const ShaderUnifor
     float dis = (light.light_position - cur_position).norm();
     float diffuse_light = light.light_intensity / (dis * dis) * fmax(0.0, light_direction.dot(cur_norm));
     //specular light
-    Eigen::Vector3f view_direction = (light.eye_position - cur_position).normalized();
+    //TODO: change this eye_pos
+    auto eye_position = Eigen::Vector3f(0,0,0);
+    Eigen::Vector3f view_direction = (eye_position - cur_position).normalized();
     Eigen::Vector3f bisector = (view_direction + light_direction).normalized();
     float specular_light = light.light_intensity / (dis * dis) * pow(fmax(0.0, cur_norm.dot(bisector)), 5);
 //    std::cout << diffuse_light << " " << specular_light << std::endl;
 //    TGAColor white = TGAColor(255, 255, 255, 255);
     total_light += (diffuse_light + specular_light);
   }
-  data.output_color = data.texture_color * total_light;
+//  std::cout << total_light << std::endl;
+  data.output_color = data.texture_color;
 //    std::cout << dis << " " << diffuse_light << " " << output_color << std::endl;
 //    output_color = texture_color;
 }
