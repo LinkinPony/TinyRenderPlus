@@ -68,6 +68,7 @@ class Scene {
 
   void nextFrame();
   void addObject(std::shared_ptr<Object> obj);
+  void addLight(Light &light);
  public:
   int get_width();
   int get_height();

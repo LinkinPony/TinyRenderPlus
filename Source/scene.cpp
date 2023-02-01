@@ -121,6 +121,7 @@ bool Scene::loadTextureFromMemory() {
 //  image_data = ShaderGlobal::current_drawer -> data;
   if (render_buffer_.data == nullptr)
     return false;
+//  render_buffer_.flip_horizontally();
   // Create a OpenGL texture identifier
   glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width_, height_, 0, GL_BGR_EXT, GL_UNSIGNED_BYTE, render_buffer_.data);
   return true;
@@ -131,9 +132,11 @@ GLuint Scene::get_render_result() {
 }
 void Scene::addObject(std::shared_ptr<Object> obj) {
   objects_.emplace_back(obj);
+  shader_uniform_data_.u_diffuse.push_back(obj->diffuse_map_);
 }
 void Scene::set_camera_mvp_matrix(const Eigen::Matrix4f &mat) {
   shader_uniform_data_.camera_MVP = mat;
 }
-
-
+void Scene::addLight(Light &light) {
+  shader_uniform_data_.lights.emplace_back(light);
+}

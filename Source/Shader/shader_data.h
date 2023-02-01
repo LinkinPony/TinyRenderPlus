@@ -10,6 +10,7 @@
 
 #include <utility>
 #include <vector>
+#include <memory>
 #include <tgaimage.h>
 #include <triangle.h>
 #include <eigen3/Eigen/Eigen>
@@ -27,9 +28,11 @@ struct Light{
 
 struct ShaderUniformData{
   //according to uniform in shader. should only constract once.
-  std::vector<TGAImage> u_texture;//texture for each object. indexed with object id.
-  std::vector<TGAImage> u_diffuse;//diffuse map for each object. indexed with object id.
+  std::vector<std::shared_ptr<TGAImage> > u_texture;//texture for each object. indexed with object id.
+  std::vector<std::shared_ptr<TGAImage> > u_diffuse;//diffuse map for each object. indexed with object id.
+  std::vector<std::shared_ptr<TGAImage> > u_normal_map;//normal map for each object. indexed with object id.
   Eigen::Affine3f camera_MVP;
+  std::vector<Light>lights;//TODO: maybe need optimize
 };
 
 
@@ -39,7 +42,6 @@ struct ShaderVaryingData{
   //TODO: try Struct Of Array(SOA) optimize.
   int coord_x = 0,coord_y = 0;//screen coordinate
   int object_id = 0;//for u_texture,u_diffuse
-  std::vector<Light>lights;//TODO: maybe need optimize
   Eigen::Vector4f vertex[3];//modified in vertex shader, and should be read-only in fragment shader
   Eigen::Vector2f uv[3];//texture coord, range in [0,1]
   Eigen::Vector3f norm[3];

@@ -87,3 +87,17 @@ int Object::readObjFromFile(const std::string& filename){
   }
   return 0;
 }
+std::unique_ptr<TGAImage> Object::readTGA(const std::string &filename) {
+  //TODO: avoid copy
+  std::unique_ptr<TGAImage> temp = std::make_unique<TGAImage>(TGAImage());
+  temp->read_tga_file(filename.c_str());
+  return temp;
+}
+int Object::readDiffusemap(const std::string &filename) {
+  this->diffuse_map_ = readTGA(filename + FILE_DIFFUSE_SUFFIX_);
+  return 1;
+}
+int Object::readNormalmap(const std::string &filename) {
+  this->normal_map_ = readTGA(filename + FILE_NORMAL_MAP_SUFFIX_);
+  return 1;
+}

@@ -174,5 +174,6 @@ void Editor::loadScene(std::unique_ptr<Scene> scene) {
   auto light_position = Eigen::Vector3f(10000,10000,10000);
   float light_intensity = 2.3e8;
   auto light1 = Light(light_position,light_intensity);
+  scene_->addLight(light1);
   scene_->nextFrame();
 }

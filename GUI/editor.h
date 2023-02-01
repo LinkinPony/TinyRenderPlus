@@ -19,7 +19,7 @@
 //import Render.Scene;
 
 class Editor {
- private:
+ public:
   std::unique_ptr<Scene>scene_;
   GLuint raw_image_texture_;
  public:
