@@ -90,7 +90,15 @@ int Object::readObjFromFile(const std::string& filename){
 std::unique_ptr<TGAImage> Object::readTGA(const std::string &filename) {
   //TODO: avoid copy
   std::unique_ptr<TGAImage> temp = std::make_unique<TGAImage>(TGAImage());
-  temp->read_tga_file(filename.c_str());
+  bool ok = temp->read_tga_file(filename.c_str());
+  std::cerr << "texture file " << filename << " loading " << (ok ? "ok" : "failed") << std::endl;
+  std::cerr << "size[h x w]: " << temp->get_height() << "x" << temp->get_width() << std::endl;
+  temp->flip_vertically();
+  if(!ok){
+    std::cout << filename << " " << "load failed." << std::endl;
+    TGAColor white = TGAColor(255,255,255,255);
+    temp->operator=(white);
+  }
   return temp;
 }
 int Object::readDiffusemap(const std::string &filename) {

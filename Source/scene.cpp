@@ -1,10 +1,12 @@
 //
 // Created by linkinpony on 23-1-8.
 //
+#include <iostream>
 
 #include <scene.h>
 #include <triangle.h>
-void Scene::initVertexVaryingData(){
+void Scene::
+initVertexVaryingData(){
   //TODO: change function name
   object_vertex_vary_data_.clear();
   fragment_vary_data_.clear();
@@ -67,8 +69,13 @@ void Scene::drawSingleFragment(ShaderVaryingData &data) {
   }
   int x = data.coord_x;
   int y = data.coord_y;
-  auto & color = data.output_color;
-  render_buffer_.set(x,y,color);
+  int idx = x + y * width_;
+  if(z_buffer_[idx] > data.depth){
+    z_buffer_[idx] = data.depth;
+    auto & color = data.output_color;
+    render_buffer_.set(x,y,color);
+  }
+
 //  data.debugPrint();
 }
 void Scene::drawAllFragment() {
@@ -79,11 +86,13 @@ void Scene::drawAllFragment() {
 void Scene::nextFrame() {
   //TODO: lots of work to do
   std::fill(z_buffer_.begin(), z_buffer_.end(),INF);
+  render_buffer_.clear();
   initVertexVaryingData();
   processAllVertex();
   processAllTriangle();
   processAllFragment();
   drawAllFragment();
+  render_buffer_.flip_vertically();
 }
 int Scene::get_height() {
   return height_;
@@ -121,7 +130,7 @@ bool Scene::loadTextureFromMemory() {
 //  image_data = ShaderGlobal::current_drawer -> data;
   if (render_buffer_.data == nullptr)
     return false;
-//  render_buffer_.flip_horizontally();
+//  render_buffer_.flip_vertically();
   // Create a OpenGL texture identifier
   glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width_, height_, 0, GL_BGR_EXT, GL_UNSIGNED_BYTE, render_buffer_.data);
   return true;

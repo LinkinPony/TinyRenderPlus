@@ -43,10 +43,9 @@ struct ShaderVaryingData{
   int coord_x = 0,coord_y = 0;//screen coordinate
   int object_id = 0;//for u_texture,u_diffuse
   Eigen::Vector4f vertex[3];//modified in vertex shader, and should be read-only in fragment shader
-  Eigen::Vector2f uv[3];//texture coord, range in [0,1]
   Eigen::Vector3f norm[3];
   Eigen::Vector3f color[3];
-  Eigen::Vector2f texture_coords[3];
+  Eigen::Vector2f texture_coords[3];//texture coord, range in [0,1]
   float depth = 0;//z-buffer
   TGAColor texture_color = TGAColor(0,0,0,0);
   TGAColor output_color = TGAColor(0,0,0,0);
@@ -71,6 +70,7 @@ struct ShaderVaryingData{
     std::cout << "[x,y] = " << coord_x << "," << coord_y << std::endl;
     std::cout << "Object id: " << object_id << std::endl;
     std::cout << "Color: " << this->texture_color << std::endl;
+    std::cout << "depth: " << this->depth << std::endl;
   }
 };
 #endif //TINYRENDERPLUS_RENDER_SHADER_SHADER_DATA_H_

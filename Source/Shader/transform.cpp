@@ -3,6 +3,7 @@
 //
 //refer: https://stackoverflow.com/questions/15073259/converting-from-vector3f-to-matrix4f
 #include "transform.h"
+#include <iostream>
 //remember, when you create a new matrix in Eigen, it's coefficients won't be initialized by default.
 Eigen::Matrix4f Transform::viewTrans(const Eigen::Vector3f &e, const Eigen::Vector3f &c, const Eigen::Vector3f &t) {
   /*
@@ -60,17 +61,14 @@ Eigen::Matrix4f Transform::getMVPMatrix
      int image_width,
      int image_height) {
   //TODO: this is just a temp func
-//  Eigen::Matrix4f M_model = identityMatrix4();
-//  M_model(0,0) = M_model(1,1) = M_model(2,2) = 1000;//multiply .obj's coordinate by 500
-//  M_model(0,3) = 1000,M_model(1,3) = 1000;
-//  M_model(2,3) = -1000;
-//  M_model(3,3) = 1;
   int near = -300, far = -10000;
-//  //camera
+  //camera
   Eigen::Vector3f t(0, 1, 0);//Up direction
   Eigen::Matrix4f M_view = viewTrans(camera_position, view_center, t);
   Eigen::Matrix4f M_perse = perspTrans(0, image_width, 0, image_height, far, near);
   Eigen::Matrix4f M_viewport = viewportTrans(image_width, image_height);
   Eigen::Matrix4f M = M_viewport * M_view;
+  Eigen::IOFormat CleanFmt(4, 0, ", ", "\n", "[", "]");
+  std::cout << M.format(CleanFmt) << "\n------------------\n";
   return M;
 }
