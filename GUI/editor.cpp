@@ -102,16 +102,16 @@ int Editor::run() {
     ImGui_ImplGlfw_NewFrame();
     ImGui::NewFrame();
     if(show_image){
+      auto config = scene_->get_config();
       ImGui::Begin("result");
       ImGui::Text("Texture pointer = %p", scene_->get_render_result());
       ImGui::Text("size = %d x %d", scene_->get_width(), scene_->get_height());
-//      ImGui::SliderFloat("View Position x", &view_center.x, 0.0f, 1.0f);
-//      ImGui::SliderFloat("View Position y", &view_center.y, 0.0f, 1.0f);
-//      ImGui::SliderFloat("View Position z", &view_center.z, 0.0f, 1.0f);
-//      ImGui::SliderFloat("Camera Position x", &camera_position.x, -1e5f, 1e5f);
-//      ImGui::SliderFloat("Camera Position y", &camera_position.y, -1e5f, 1e5f);
-//      ImGui::SliderFloat("Camera Position z", &camera_position.z, -1e5f, 1e5f);
-//            view_center.normalize();
+      ImGui::SliderFloat("View Position x", &config->view_center.x(), 0.0f, 1.0f);
+      ImGui::SliderFloat("View Position y", &config->view_center.y(), 0.0f, 1.0f);
+      ImGui::SliderFloat("View Position z", &config->view_center.z(), 0.0f, 1.0f);
+      ImGui::SliderFloat("Camera Position x", &config->camera_position.x(), -1e5f, 1e5f);
+      ImGui::SliderFloat("Camera Position y", &config->camera_position.y(), -1e5f, 1e5f);
+      ImGui::SliderFloat("Camera Position z", &config->camera_position.z(), -1e5f, 1e5f);
       scene_->nextFrame();
       scene_->loadTextureFromMemory();
       ImGui::Image((void*)(intptr_t)scene_->get_render_result(), ImVec2(scene_->get_width(), scene_->get_height()));
@@ -160,20 +160,14 @@ int Editor::run() {
   glfwTerminate();
   return 0;
 }
-void Editor::loadScene(std::unique_ptr<Scene> scene) {
+void Editor::loadScene(std::shared_ptr<Scene> scene) {
   //TODO: move this to somewhere else
-  this->scene_ = std::move(scene);
-  Eigen::Vector3f camera_position(1000,1000,1000);
-  Eigen::Vector3f view_center(1,1,1);
-  auto matrix = Transform::getMVPMatrix(
-    camera_position,
-    view_center,
-    scene_->get_width(),
-    scene_->get_height());
-  scene_->set_camera_mvp_matrix(matrix);
-  auto light_position = Eigen::Vector3f(10000,10000,10000);
-  float light_intensity = 2.3e8;
-  auto light1 = Light(light_position,light_intensity);
-  scene_->addLight(light1);
-  scene_->nextFrame();
+  this->scene_ = scene;
+  auto config = scene_->get_config();
+  config->light_position = Eigen::Vector3f(1000,1000,1000);
+  config->view_center = Eigen::Vector3f(1,1,1);
+  config->light_position = Eigen::Vector3f(10000,10000,10000);
+  config->light_intensity = 2.3e8;
+  auto light1 = Light(config->light_position,config->light_intensity);
+  scene->addLight(light1);
 }

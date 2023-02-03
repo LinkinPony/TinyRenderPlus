@@ -20,11 +20,10 @@
 
 class Editor {
  public:
-  std::unique_ptr<Scene>scene_;
+  std::shared_ptr<Scene>scene_;
   GLuint raw_image_texture_;
  public:
-  void loadScene(std::unique_ptr<Scene> scene);
-
+  void loadScene(std::shared_ptr<Scene> scene);
   int run();
 };
 

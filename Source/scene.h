@@ -15,21 +15,40 @@
 #if defined(_MSC_VER) && (_MSC_VER >= 1900) && !defined(IMGUI_DISABLE_WIN32_FUNCTIONS)
 #pragma comment(lib, "legacy_stdio_definitions")
 #endif
+#include <eigen3/Eigen/Eigen>
 #include <tgaimage.h>
 #include <render.h>
 #include <shader.h>
 #include <shader_data.h>
-#include <memory>
+
+struct SceneConfig{
+  //IMPORTANT: set default value
+  //Scene
+  int width = 0;
+  int height = 0;
+  float scale = 0;
+  float fov = 0;//vertical fov
+  float aspect_ratio = 0;//aspect_ration = width / height
+  SceneConfig(int width,int height,float fov)
+  :width(width),height(height),fov(fov){
+      aspect_ratio = static_cast<float>(width) / height;
+  }
+  //Camera
+  Eigen::Vector3f camera_position = Eigen::Vector3f::Zero();
+  Eigen::Vector3f view_center = Eigen::Vector3f::Zero();
+  //Light
+  //TODO: maybe you can move lights and other TGAImage to resource pack.
+  //TODO: use multi lights.
+  Eigen::Vector3f light_position = Eigen::Vector3f::Zero();
+  float light_intensity = 0;
+
+
+};
 class Scene {
  private:
   const float INF = 1e18;
  private:
-  int width_;
-  int height_;
-  float scale_;
-  float fov_;//vertical fov
-  float aspect_ratio_;//aspect_ration = width / height
-
+  std::shared_ptr<SceneConfig>config_;
   GLuint render_result_;
   TGAImage render_buffer_;
  private:
@@ -56,8 +75,8 @@ class Scene {
 //  RenderInterface render;
  public:
   Scene(int width,int height,float fov,std::unique_ptr<Shader>shader)
-  :width_(width),height_(height),fov_(fov),shader_(std::move(shader)){
-    aspect_ratio_ = static_cast<float>(width) / height;
+  :shader_(std::move(shader)){
+    config_ = std::make_unique<SceneConfig>(width,height,fov);
     z_buffer_.assign(width * height,INF);
     render_buffer_ = TGAImage(width,height,TGAImage::RGB);
     genTextureInit();
@@ -65,10 +84,10 @@ class Scene {
 
   bool loadTextureFromMemory();
   void genTextureInit();
-
   void nextFrame();
   void addObject(std::shared_ptr<Object> obj);
   void addLight(Light &light);
+  void applySceneConfig();//call this before each frame rendering
  public:
   int get_width();
   int get_height();
@@ -76,6 +95,9 @@ class Scene {
   void set_height(int height);
   void set_width(int width);
   void set_camera_mvp_matrix(const Eigen::Matrix4f &mat);
+  std::shared_ptr<SceneConfig> get_config(){
+    return config_;
+  }
 };
 
 #endif //TINYRENDERPLUS_RENDER_SCENE_H_

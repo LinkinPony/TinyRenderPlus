@@ -3,8 +3,11 @@
 //
 #include <iostream>
 
+#include <eigen3/Eigen/Eigen>
+
 #include <scene.h>
 #include <triangle.h>
+#include <transform.h>
 void Scene::
 initVertexVaryingData(){
   //TODO: change function name
@@ -69,7 +72,7 @@ void Scene::drawSingleFragment(ShaderVaryingData &data) {
   }
   int x = data.coord_x;
   int y = data.coord_y;
-  int idx = x + y * width_;
+  int idx = x + y * get_width();
   if(z_buffer_[idx] > data.depth){
     z_buffer_[idx] = data.depth;
     auto & color = data.output_color;
@@ -85,6 +88,7 @@ void Scene::drawAllFragment() {
 }
 void Scene::nextFrame() {
   //TODO: lots of work to do
+  applySceneConfig();
   std::fill(z_buffer_.begin(), z_buffer_.end(),INF);
   render_buffer_.clear();
   initVertexVaryingData();
@@ -95,18 +99,18 @@ void Scene::nextFrame() {
   render_buffer_.flip_vertically();
 }
 int Scene::get_height() {
-  return height_;
+  return config_->height;
 }
 int Scene::get_width() {
-  return width_;
+  return config_->width;
 }
 void Scene::set_height(int height) {
-  height_ = height;
-  aspect_ratio_ = static_cast<float>(width_) / height_;
+  config_->height = height;
+  config_->aspect_ratio = static_cast<float>(config_->width) / config_->height;
 }
 void Scene::set_width(int width) {
-  width_ = width;
-  aspect_ratio_ = static_cast<float>(width_) / height_;
+  config_->width = width;
+  config_->aspect_ratio = static_cast<float>(config_->width) / config_->height;
 }
 void Scene::genTextureInit() {
   glGenTextures(1, &render_result_);
@@ -132,7 +136,7 @@ bool Scene::loadTextureFromMemory() {
     return false;
 //  render_buffer_.flip_vertically();
   // Create a OpenGL texture identifier
-  glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width_, height_, 0, GL_BGR_EXT, GL_UNSIGNED_BYTE, render_buffer_.data);
+  glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, get_width(), get_height(), 0, GL_BGR_EXT, GL_UNSIGNED_BYTE, render_buffer_.data);
   return true;
 }
 
@@ -148,4 +152,12 @@ void Scene::set_camera_mvp_matrix(const Eigen::Matrix4f &mat) {
 }
 void Scene::addLight(Light &light) {
   shader_uniform_data_.lights.emplace_back(light);
+}
+void Scene::applySceneConfig() {
+  auto matrix = Transform::getMVPMatrix(
+      config_->camera_position,
+      config_->view_center,
+      get_width(),
+      get_height());
+  set_camera_mvp_matrix(matrix);
 }

@@ -56,8 +56,6 @@ void BlingPhongShader::fragmentShader(ShaderVaryingData &data, const ShaderUnifo
   }
   data.texture_color = diffuse(diffuse_uv, data.object_id, u_data);
   //diffuse light
-  data.output_color = data.texture_color;
-  return;
   float total_light = 0;
   for (auto light : u_data.lights) {
     Eigen::Vector3f light_direction = (light.light_position - cur_position).normalized();
