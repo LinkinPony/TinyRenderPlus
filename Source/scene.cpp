@@ -35,7 +35,11 @@ void Scene::processAllVertex() {
   }
 }
 void Scene::processSingleTriange(ShaderVaryingData &data) {
-  const auto & vertex = data.vertex;
+  //In previous version, we calculate all stuff under viewport translation.
+  //This will cause many mystery problem.
+  //Now we calculate triangles under MVP translation,
+  //and pass a screen coord parameter to drawer.
+  const auto & vertex = data.vertex;//in MVP translation.
   int width = get_width();
   int height = get_height();
   int lx = std::max(std::min({vertex[0].x(),vertex[1].x(),vertex[2].x()}),0.f);
@@ -67,6 +71,7 @@ void Scene::processAllFragment() {
   }
 }
 void Scene::drawSingleFragment(ShaderVaryingData &data) {
+//  data.debugPrint();
   if(data.skip){
     return;
   }
@@ -78,8 +83,8 @@ void Scene::drawSingleFragment(ShaderVaryingData &data) {
     auto & color = data.output_color;
     render_buffer_.set(x,y,color);
   }
+  //TODO: delete debug output
 
-//  data.debugPrint();
 }
 void Scene::drawAllFragment() {
   for(auto & it:fragment_vary_data_){
@@ -154,10 +159,18 @@ void Scene::addLight(Light &light) {
   shader_uniform_data_.lights.emplace_back(light);
 }
 void Scene::applySceneConfig() {
+  //TODO: delete config output
+  config_->debugPrint();
   auto matrix = Transform::getMVPMatrix(
       config_->camera_position,
       config_->view_center,
+      config_->fov,
+      config_->aspect_ratio,
+      config_->zNear,
+      config_->zFar,
       get_width(),
-      get_height());
+      get_height()
+      );
+
   set_camera_mvp_matrix(matrix);
 }

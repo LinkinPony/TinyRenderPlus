@@ -31,7 +31,7 @@ add_executable(TinyRenderPlus
         ${IMGUI_SRC}
         ${TINY_RENDER_SRC}
         main.cpp
-        Source/Render/render.h Source/Shader/shader.h Source/Shader/shader_data.h Source/Shader/shader_pipeline.cpp Source/Shader/shader_pipeline.h Source/Shader/bling_phong_shader.cpp Source/Shader/bling_phong_shader.h Source/Shader/shader.cpp Source/Shader/transform.cpp Source/Shader/transform.h)
+        Source/Render/render.h Source/Shader/shader.h Source/Shader/shader_data.h Source/Shader/bling_phong_shader.cpp Source/Shader/bling_phong_shader.h Source/Shader/shader.cpp Source/Shader/transform.cpp Source/Shader/transform.h)
 
 target_link_libraries(TinyRenderPlus glfw3 GL dl X11 pthread benchmark::benchmark)
 #set_target_properties(TinyRenderPlus PROPERTIES LINKER_LANGUAGE CXX)

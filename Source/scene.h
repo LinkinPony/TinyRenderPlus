@@ -15,6 +15,7 @@
 #if defined(_MSC_VER) && (_MSC_VER >= 1900) && !defined(IMGUI_DISABLE_WIN32_FUNCTIONS)
 #pragma comment(lib, "legacy_stdio_definitions")
 #endif
+#include <iostream>
 #include <eigen3/Eigen/Eigen>
 #include <tgaimage.h>
 #include <render.h>
@@ -29,6 +30,8 @@ struct SceneConfig{
   float scale = 0;
   float fov = 0;//vertical fov
   float aspect_ratio = 0;//aspect_ration = width / height
+  float zNear = 10;
+  float zFar = 300;
   SceneConfig(int width,int height,float fov)
   :width(width),height(height),fov(fov){
       aspect_ratio = static_cast<float>(width) / height;
@@ -42,7 +45,21 @@ struct SceneConfig{
   Eigen::Vector3f light_position = Eigen::Vector3f::Zero();
   float light_intensity = 0;
 
-
+  [[maybe_unused]] void debugPrint(){
+    #ifdef NDEBUG
+        return;
+    #endif
+    std::cerr << " ---- config ----\n";
+    std::cerr << "width x height = " << width << " x " << height << std::endl;
+    std::cerr << "scale = " << scale << std::endl;
+    std::cerr << "fov = " << fov << std::endl;
+    std::cerr << "aspect_ratio = " << aspect_ratio << std::endl;
+    std::cerr << "zNear = " << zNear << std::endl;
+    std::cerr << "zFar = " << zFar << std::endl;
+    std::cerr << "camera_position : " << camera_position << std::endl;
+    std::cerr << "view_center : " << view_center << std::endl;
+    std::cerr << " ---- ------ ----\n";
+  }
 };
 class Scene {
  private:

@@ -106,12 +106,14 @@ int Editor::run() {
       ImGui::Begin("result");
       ImGui::Text("Texture pointer = %p", scene_->get_render_result());
       ImGui::Text("size = %d x %d", scene_->get_width(), scene_->get_height());
-      ImGui::SliderFloat("View Position x", &config->view_center.x(), 0.0f, 1.0f);
-      ImGui::SliderFloat("View Position y", &config->view_center.y(), 0.0f, 1.0f);
-      ImGui::SliderFloat("View Position z", &config->view_center.z(), 0.0f, 1.0f);
-      ImGui::SliderFloat("Camera Position x", &config->camera_position.x(), -1e5f, 1e5f);
-      ImGui::SliderFloat("Camera Position y", &config->camera_position.y(), -1e5f, 1e5f);
-      ImGui::SliderFloat("Camera Position z", &config->camera_position.z(), -1e5f, 1e5f);
+      ImGui::SliderFloat("View Position x", &config->view_center.x(), -50.0f, 50.0f);
+      ImGui::SliderFloat("View Position y", &config->view_center.y(), -50.0f, 50.0f);
+      ImGui::SliderFloat("View Position z", &config->view_center.z(), -50.0f, 50.0f);
+      ImGui::SliderFloat("Camera Position x", &config->camera_position.x(), -1e3f, 1e3f);
+      ImGui::SliderFloat("Camera Position y", &config->camera_position.y(), -1e3f, 1e3f);
+      ImGui::SliderFloat("Camera Position z", &config->camera_position.z(), -1e3f, 1e3f);
+      ImGui::SliderFloat("zNear", &config->zNear, -1e3f, 1e3f);
+      ImGui::SliderFloat("zFar", &config->zFar, -1e3f, 1e3f);
       scene_->nextFrame();
       scene_->loadTextureFromMemory();
       ImGui::Image((void*)(intptr_t)scene_->get_render_result(), ImVec2(scene_->get_width(), scene_->get_height()));
@@ -164,10 +166,13 @@ void Editor::loadScene(std::shared_ptr<Scene> scene) {
   //TODO: move this to somewhere else
   this->scene_ = scene;
   auto config = scene_->get_config();
-  config->light_position = Eigen::Vector3f(1000,1000,1000);
+  config->camera_position = Eigen::Vector3f(0,0,10);
   config->view_center = Eigen::Vector3f(1,1,1);
-  config->light_position = Eigen::Vector3f(10000,10000,10000);
-  config->light_intensity = 2.3e8;
+  config->light_position = Eigen::Vector3f(200,200,200);
+  config->light_intensity = 50000;
+  config->fov = 45;
+  config->zNear = 0.1;
+  config->zFar = 50;
   auto light1 = Light(config->light_position,config->light_intensity);
   scene->addLight(light1);
 }

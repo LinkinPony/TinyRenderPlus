@@ -4,12 +4,12 @@
 
 #include "bling_phong_shader.h"
 
+#include <cmath>
+#include <iostream>
+
 #include <shader_data.h>
 
 #include "eigen3/Eigen/Eigen"
-
-#include <cmath>
-#include <iostream>
 
 TGAColor BlingPhongShader::diffuse(const Eigen::Vector2f &uvf, int obj_id, const ShaderUniformData &u_data) {
   auto &diffusemap = u_data.u_diffuse[obj_id];
@@ -32,12 +32,7 @@ Eigen::Vector3f Barycentric(const Eigen::Vector3f (&vertex)[3], const Eigen::Vec
 void BlingPhongShader::fragmentShader(ShaderVaryingData &data, const ShaderUniformData &u_data) {
   int x = data.coord_x;
   int y = data.coord_y;
-  Eigen::Vector3f vertex[3];
-  for (int i = 0; i < 3; i++) {
-    float w = data.vertex[i].w();
-    vertex[i] = data.vertex[i].head<3>();
-    vertex[i] /= w;
-  }
+  auto &vertex  = data.vertex;
   Eigen::Vector3f bary = Barycentric(vertex, Eigen::Vector2i(x, y));
   if (bary.x() < -eps || bary.y() < -eps || bary.z() < -eps) {
     data.skip = true;
@@ -63,10 +58,10 @@ void BlingPhongShader::fragmentShader(ShaderVaryingData &data, const ShaderUnifo
     float diffuse_light = light.light_intensity / (dis * dis) * fmax(0.0, light_direction.dot(cur_norm));
     //specular light
     //TODO: change this eye_pos
-    auto eye_position = Eigen::Vector3f(0, 0, 0);
+    auto eye_position = Eigen::Vector3f(0, 0, 10);
     Eigen::Vector3f view_direction = (eye_position - cur_position).normalized();
     Eigen::Vector3f bisector = (view_direction + light_direction).normalized();
-    float specular_light = light.light_intensity / (dis * dis) * pow(fmax(0.0, cur_norm.dot(bisector)), 5);
+    float specular_light = light.light_intensity / (dis * dis) * pow(fmax(0.0, cur_norm.dot(bisector)), 150);
     total_light += (diffuse_light + specular_light);
   }
   if(total_light < light_threshold){
@@ -80,6 +75,8 @@ void BlingPhongShader::fragmentShader(ShaderVaryingData &data, const ShaderUnifo
 void BlingPhongShader::vertexShader(ShaderVaryingData &data, const ShaderUniformData &u_data) {
   //TODO: finish it
   for (int i = 0; i < 3; i++) {
+//    std::cout << "Before: " << data.vertex[i] << std::endl;
     data.vertex[i] = u_data.camera_MVP * data.vertex[i];
+//    std::cout << "After: " << data.vertex[i] << std::endl;
   }
 }

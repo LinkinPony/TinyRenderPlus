@@ -19,7 +19,7 @@ int main(int argc,char * argv[]) {
 //    sc->nextFrame();
   auto editor = std::make_shared<Editor>();
   editor->loadScene(std::move(sc));
-
+  editor->scene_->nextFrame();
   if(argc > 1){
     editor->run();
   }

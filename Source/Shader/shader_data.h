@@ -42,7 +42,7 @@ struct ShaderVaryingData{
   //TODO: try Struct Of Array(SOA) optimize.
   int coord_x = 0,coord_y = 0;//screen coordinate
   int object_id = 0;//for u_texture,u_diffuse
-  Eigen::Vector4f vertex[3];//modified in vertex shader, and should be read-only in fragment shader
+  Eigen::Vector3f vertex[3];//modified in vertex shader, and should be read-only in fragment shader
   Eigen::Vector3f norm[3];
   Eigen::Vector3f color[3];
   Eigen::Vector2f texture_coords[3];//texture coord, range in [0,1]
@@ -65,6 +65,9 @@ struct ShaderVaryingData{
     }
   }
   [[maybe_unused]] void debugPrint(){
+    #ifdef NDEBUG
+        return;
+    #endif
     std::cout << " ---- \n";
     std::cout << "Skipped: " << (skip?"true":"false") << std::endl;
     std::cout << "[x,y] = " << coord_x << "," << coord_y << std::endl;
