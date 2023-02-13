@@ -75,8 +75,16 @@ void BlingPhongShader::fragmentShader(ShaderVaryingData &data, const ShaderUnifo
 void BlingPhongShader::vertexShader(ShaderVaryingData &data, const ShaderUniformData &u_data) {
   //TODO: finish it
   for (int i = 0; i < 3; i++) {
+    //TODO: optimize it.
 //    std::cout << "Before: " << data.vertex[i] << std::endl;
-    data.vertex[i] = u_data.camera_MVP * data.vertex[i];
+    Eigen::Vector4f temp = u_data.camera_MVP
+        * Eigen::Vector4f(data.vertex[i].x(),data.vertex[i].y(),data.vertex[i].z(),1.0f);
+    float w = temp.w();
+    data.vertex[i] = Eigen::Vector3f(
+        temp.x() / w,
+        temp.y() / w,
+        temp.z() / w
+        );
 //    std::cout << "After: " << data.vertex[i] << std::endl;
   }
 }

@@ -109,11 +109,11 @@ int Editor::run() {
       ImGui::SliderFloat("View Position x", &config->view_center.x(), -50.0f, 50.0f);
       ImGui::SliderFloat("View Position y", &config->view_center.y(), -50.0f, 50.0f);
       ImGui::SliderFloat("View Position z", &config->view_center.z(), -50.0f, 50.0f);
-      ImGui::SliderFloat("Camera Position x", &config->camera_position.x(), -1e3f, 1e3f);
-      ImGui::SliderFloat("Camera Position y", &config->camera_position.y(), -1e3f, 1e3f);
-      ImGui::SliderFloat("Camera Position z", &config->camera_position.z(), -1e3f, 1e3f);
-      ImGui::SliderFloat("zNear", &config->zNear, -1e3f, 1e3f);
-      ImGui::SliderFloat("zFar", &config->zFar, -1e3f, 1e3f);
+      ImGui::SliderFloat("Camera Position x", &config->camera_position.x(), -1e2f, 1e2f);
+      ImGui::SliderFloat("Camera Position y", &config->camera_position.y(), -1e2f, 1e2f);
+      ImGui::SliderFloat("Camera Position z", &config->camera_position.z(), -1e2f, 1e2f);
+      ImGui::SliderFloat("zNear", &config->zNear, -1e2f, 1e2f);
+      ImGui::SliderFloat("zFar", &config->zFar, -1e2f, 1e2f);
       scene_->nextFrame();
       scene_->loadTextureFromMemory();
       ImGui::Image((void*)(intptr_t)scene_->get_render_result(), ImVec2(scene_->get_width(), scene_->get_height()));

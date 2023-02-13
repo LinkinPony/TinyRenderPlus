@@ -14,7 +14,7 @@ Eigen::Matrix4f Transform::viewTrans(const Eigen::Vector3f &e, const Eigen::Vect
    * t: Up direction
    */
   Eigen::Vector3f g = (c - e);
-  Eigen::Vector3f w = -(g.normalized());
+  Eigen::Vector3f w = (-g).normalized();
   Eigen::Vector3f u = (t.cross(w)).normalized();
   Eigen::Vector3f v = w.cross(u);
   Eigen::Matrix4f T = Eigen::Matrix4f::Identity();
@@ -23,10 +23,10 @@ Eigen::Matrix4f Transform::viewTrans(const Eigen::Vector3f &e, const Eigen::Vect
   }
   Eigen::Matrix4f S;
   //TODO: change this
-  S.matrix().row(0) << u.x(), u.y(), u.z(), 0;
-  S.matrix().row(1) << v.x(), v.y(), v.z(), 0;
-  S.matrix().row(2) << w.x(), w.y(), w.z(), 0;
-  S.matrix().row(3) << 0, 0, 0, 1;
+  S << u.x(), u.y(), u.z(), 0,
+  v.x(), v.y(), v.z(), 0,
+  w.x(), w.y(), w.z(), 0,
+  0, 0, 0, 1;
   //TODO: change this.
   return S * T;
 //  return Eigen::Matrix4f::Identity();
@@ -57,8 +57,8 @@ Eigen::Matrix4f Transform::viewportTrans(int width, int height) {
   float w = width;
   float h = height;
   m_viewport <<
-  w / 2, 0, 0,0,
-  0, h / 2, 0, 0,
+  w / 2, 0, 0, (w - 1) / 2,
+  0, h / 2, 0, (h - 1) / 2,
   0, 0, 1, 0,
   0, 0, 0, 1;
   return m_viewport;
@@ -82,7 +82,6 @@ Eigen::Matrix4f Transform::modelTrans(float angle,float scale){
   return m_translate * m_rotation * scale;
 }
 Eigen::Matrix4f Transform::projectionTrans(float eye_fov, float aspect_ratio, float zNear, float zFar){
-  //TODO: test done. DELETE THIS COMMENT
   Eigen::Matrix4f m_projection = Eigen::Matrix4f::Identity();
   // Create the projection matrix for the given parameters.
   // Then return it.
@@ -109,7 +108,7 @@ Eigen::Matrix4f Transform::getMVPMatrix
   //TODO: this is just a temp func
   //camera
   Eigen::Vector3f t(0, 1, 0);//Up direction
-  Eigen::Matrix4f m_model = modelTrans(140,1);
+  Eigen::Matrix4f m_model = modelTrans(140,15);
   Eigen::Matrix4f m_view = viewTrans(camera_position, view_center, t);
   Eigen::Matrix4f m_projecton = projectionTrans(eyefov,aspect_ratio,zNear,zFar);
   Eigen::Matrix4f m_viewport = viewportTrans(image_width, image_height);
@@ -118,6 +117,5 @@ Eigen::Matrix4f Transform::getMVPMatrix
   Eigen::IOFormat CleanFmt(4, 0, ", ", "\n", "[", "]");
   std::cout << "zNear = " <<  zNear << std::endl;
   std::cout << mvp.format(CleanFmt) << "\n------------------\n";
-  std::cout << m_viewport.format(CleanFmt) << "\n------------------\n";
   return mvp;
 }
