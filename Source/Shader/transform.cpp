@@ -14,7 +14,7 @@ Eigen::Matrix4f Transform::viewTrans(const Eigen::Vector3f &e, const Eigen::Vect
    * t: Up direction
    */
   Eigen::Vector3f g = (c - e);
-  Eigen::Vector3f w = (-g).normalized();
+  Eigen::Vector3f w = g.normalized();
   Eigen::Vector3f u = (t.cross(w)).normalized();
   Eigen::Vector3f v = w.cross(u);
   Eigen::Matrix4f T = Eigen::Matrix4f::Identity();
@@ -25,7 +25,7 @@ Eigen::Matrix4f Transform::viewTrans(const Eigen::Vector3f &e, const Eigen::Vect
   //TODO: change this
   S << u.x(), u.y(), u.z(), 0,
   v.x(), v.y(), v.z(), 0,
-  w.x(), w.y(), w.z(), 0,
+  -w.x(), -w.y(), -w.z(), 0,
   0, 0, 0, 1;
   //TODO: change this.
   return S * T;
@@ -108,7 +108,7 @@ Eigen::Matrix4f Transform::getMVPMatrix
   //TODO: this is just a temp func
   //camera
   Eigen::Vector3f t(0, 1, 0);//Up direction
-  Eigen::Matrix4f m_model = modelTrans(140,15);
+  Eigen::Matrix4f m_model = modelTrans(0,1);
   Eigen::Matrix4f m_view = viewTrans(camera_position, view_center, t);
   Eigen::Matrix4f m_projecton = projectionTrans(eyefov,aspect_ratio,zNear,zFar);
   Eigen::Matrix4f m_viewport = viewportTrans(image_width, image_height);
