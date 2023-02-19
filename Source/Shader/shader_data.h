@@ -31,7 +31,7 @@ struct ShaderUniformData{
   std::vector<std::shared_ptr<TGAImage> > u_texture;//texture for each object. indexed with object id.
   std::vector<std::shared_ptr<TGAImage> > u_diffuse;//diffuse map for each object. indexed with object id.
   std::vector<std::shared_ptr<TGAImage> > u_normal_map;//normal map for each object. indexed with object id.
-  Eigen::Matrix4f camera_MVP;
+  Eigen::Matrix4f camera_MVP;//TODO: change this name
   std::vector<Light>lights;//TODO: maybe need optimize
 };
 

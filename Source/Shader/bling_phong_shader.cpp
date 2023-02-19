@@ -4,35 +4,42 @@
 
 #include "bling_phong_shader.h"
 
+#include <shader_data.h>
+
 #include <cmath>
 #include <iostream>
 
-#include <shader_data.h>
-
 #include "eigen3/Eigen/Eigen"
 
-TGAColor BlingPhongShader::diffuse(const Eigen::Vector2f &uvf, int obj_id, const ShaderUniformData &u_data) {
+TGAColor BlingPhongShader::diffuse(const Eigen::Vector2f &uvf, int obj_id,
+                                   const ShaderUniformData &u_data) {
   auto &diffusemap = u_data.u_diffuse[obj_id];
-  Eigen::Vector2i uv(uvf[0] * diffusemap->get_width(), uvf[1] * diffusemap->get_height());
+  Eigen::Vector2i uv(uvf[0] * diffusemap->get_width(),
+                     uvf[1] * diffusemap->get_height());
   return diffusemap->get(uv[0], uv[1]);
 }
-Eigen::Vector3f Barycentric(const Eigen::Vector3f (&vertex)[3], const Eigen::Vector2i &P) {
-  //Calculate barycentric of P in triangle defined by vertex[3]
-  Eigen::Vector3f result =  //cal cross
-      Eigen::Vector3f(vertex[1][0] - vertex[0][0], vertex[2][0] - vertex[0][0], vertex[0][0] - P[0])
-          .cross(Eigen::Vector3f(vertex[1][1] - vertex[0][1], vertex[2][1] - vertex[0][1], vertex[0][1] - P[1]));
-  if (abs(result.z()) < 1)return Eigen::Vector3f(-1, 1, 1);
+Eigen::Vector3f Barycentric(const Eigen::Vector3f (&vertex)[3],
+                            const Eigen::Vector2i &P) {
+  // Calculate barycentric of P in triangle defined by vertex[3]
+  Eigen::Vector3f result =  // cal cross
+      Eigen::Vector3f(vertex[1][0] - vertex[0][0], vertex[2][0] - vertex[0][0],
+                      vertex[0][0] - P[0])
+          .cross(Eigen::Vector3f(vertex[1][1] - vertex[0][1],
+                                 vertex[2][1] - vertex[0][1],
+                                 vertex[0][1] - P[1]));
+  if (abs(result.z()) < 1) return Eigen::Vector3f(-1, 1, 1);
   float x = result[0];
   float y = result[1];
   float z = result[2];
   x /= z;
   y /= z;
-  return {(float) 1.0 - x - y, x, y};
+  return {(float)1.0 - x - y, x, y};
 }
-void BlingPhongShader::fragmentShader(ShaderVaryingData &data, const ShaderUniformData &u_data) {
+void BlingPhongShader::fragmentShader(ShaderVaryingData &data,
+                                      const ShaderUniformData &u_data) {
   int x = data.coord_x;
   int y = data.coord_y;
-  auto &vertex  = data.vertex;
+  auto &vertex = data.vertex;
   Eigen::Vector3f bary = Barycentric(vertex, Eigen::Vector2i(x, y));
   if (bary.x() < -eps || bary.y() < -eps || bary.z() < -eps) {
     data.skip = true;
@@ -50,40 +57,54 @@ void BlingPhongShader::fragmentShader(ShaderVaryingData &data, const ShaderUnifo
     cur_norm = cur_norm + data.norm[i] * bary[i];
   }
   data.texture_color = diffuse(diffuse_uv, data.object_id, u_data);
-  //diffuse light
+  // diffuse light
   float total_light = 0;
   for (auto light : u_data.lights) {
-    Eigen::Vector3f light_direction = (light.light_position - cur_position).normalized();
+    float ambient_light = 0.1;
+    Eigen::Vector3f light_direction =
+        (light.light_position - cur_position).normalized();
     float dis = (light.light_position - cur_position).norm();
-    float diffuse_light = light.light_intensity / (dis * dis) * fmax(0.0, light_direction.dot(cur_norm));
-    //specular light
-    //TODO: change this eye_pos
+    float diffuse_light = light.light_intensity / (dis * dis) *
+                          fmax(0.0, light_direction.dot(cur_norm));
+    // specular light
+    // TODO: change this eye_pos
     auto eye_position = Eigen::Vector3f(0, 0, 10);
     Eigen::Vector3f view_direction = (eye_position - cur_position).normalized();
     Eigen::Vector3f bisector = (view_direction + light_direction).normalized();
-    float specular_light = light.light_intensity / (dis * dis) * pow(fmax(0.0, cur_norm.dot(bisector)), 150);
-    total_light += (diffuse_light + specular_light);
+    float specular_light = light.light_intensity / (dis * dis) *
+                           pow(fmax(0.0, cur_norm.dot(bisector)), 150);
+    total_light += (diffuse_light + specular_light + ambient_light);
   }
-  if(total_light < light_threshold){
+  if (total_light < light_threshold) {
     data.skip = true;
     return;
   }
   data.output_color = data.texture_color * total_light;
-//  std::cout << x << " " << y << " " << data.output_color << "\n";
-//  std::cout << "total_light: " << total_light << " " << data.output_color << "\n";
+  //  std::cout << x << " " << y << " " << data.output_color << "\n";
+  //  std::cout << "total_light: " << total_light << " " << data.output_color <<
+  //  "\n";
 }
-void BlingPhongShader::vertexShader(ShaderVaryingData &data, const ShaderUniformData &u_data) {
+void BlingPhongShader::vertexShader(ShaderVaryingData &data,
+                                    const ShaderUniformData &u_data) {
+  int skip_bit = 0;
+  const int skip_mask = 0b111;
   for (int i = 0; i < 3; i++) {
-    //TODO: change Matrix4f to Affine3f
-//    std::cout << "Before: " << data.vertex[i] << std::endl;
-    Eigen::Vector4f temp = u_data.camera_MVP
-        * Eigen::Vector4f(data.vertex[i].x(),data.vertex[i].y(),data.vertex[i].z(),1.0f);
-    float w = temp.w();
-    data.vertex[i] = Eigen::Vector3f(
-        temp.x() / w,
-        temp.y() / w,
-        temp.z() / w
-        );
-//    std::cout << "After: " << data.vertex[i] << std::endl;
+    // TODO: change Matrix4f to Affine3f
+    //    std::cout << "Before: " << data.vertex[i] << std::endl;
+    Eigen::Vector4f temp =
+        u_data.camera_MVP * Eigen::Vector4f(data.vertex[i].x(),
+                                            data.vertex[i].y(),
+                                            data.vertex[i].z(), 1.0f);
+    float absw = fabs(temp.w());
+    if (fabs(temp.x()) > absw || fabs(temp.y()) > absw ||
+        fabs(temp.z()) > absw) {
+      skip_bit |= (1 << i);
+    }
+  }
+  // TODO: move this cut out of shader, like OpenGL do.
+  // if triangle's all three points are out of clip coordinate system, cut this
+  // triangle.
+  if (skip_bit == skip_mask) {
+    data.skip = true;
   }
 }

@@ -9,6 +9,9 @@
 #include "stb_image.h"
 #endif
 
+const int screen_width = 1280;
+const int screen_height = 720;
+
 static void glfw_error_callback(int error, const char* description)
 {
   fprintf(stderr, "Glfw Error %d: %s\n", error, description);
@@ -44,7 +47,7 @@ int Editor::run() {
 #endif
 
   // Create window with graphics context
-  GLFWwindow* window = glfwCreateWindow(1280, 720, "Dear ImGui GLFW+OpenGL3 example", NULL, NULL);
+  GLFWwindow* window = glfwCreateWindow(screen_width, screen_height, "Dear ImGui GLFW+OpenGL3 example", NULL, NULL);
   if (window == NULL)
     return 1;
   glfwMakeContextCurrent(window);
@@ -91,6 +94,7 @@ int Editor::run() {
 
   while (!glfwWindowShouldClose(window))
   {
+    
     // Poll and handle events (inputs, window resize, etc.)
     // You can read the io.WantCaptureMouse, io.WantCaptureKeyboard flags to tell if dear imgui wants to use your inputs.
     // - When io.WantCaptureMouse is true, do not dispatch mouse input data to your main application, or clear/overwrite your copy of the mouse data.
@@ -106,9 +110,9 @@ int Editor::run() {
       ImGui::Begin("result");
       ImGui::Text("Texture pointer = %p", scene_->get_render_result());
       ImGui::Text("size = %d x %d", scene_->get_width(), scene_->get_height());
-      ImGui::SliderFloat("View Position x", &config->view_center.x(), -50.0f, 50.0f);
-      ImGui::SliderFloat("View Position y", &config->view_center.y(), -50.0f, 50.0f);
-      ImGui::SliderFloat("View Position z", &config->view_center.z(), -50.0f, 50.0f);
+      ImGui::SliderFloat("View Position x", &config->camera_direction.x(), -50.0f, 50.0f);
+      ImGui::SliderFloat("View Position y", &config->camera_direction.y(), -50.0f, 50.0f);
+      ImGui::SliderFloat("View Position z", &config->camera_direction.z(), -50.0f, 50.0f);
       ImGui::SliderFloat("Camera Position x", &config->camera_position.x(), -1e2f, 1e2f);
       ImGui::SliderFloat("Camera Position y", &config->camera_position.y(), -1e2f, 1e2f);
       ImGui::SliderFloat("Camera Position z", &config->camera_position.z(), -1e2f, 1e2f);
@@ -142,12 +146,12 @@ int Editor::run() {
       ImGui::End();
     }
     // Rendering
-    ImGui::Render();
     int display_w, display_h;
     glfwGetFramebufferSize(window, &display_w, &display_h);
     glViewport(0, 0, display_w, display_h);
     glClearColor(clear_color.x * clear_color.w, clear_color.y * clear_color.w, clear_color.z * clear_color.w, clear_color.w);
     glClear(GL_COLOR_BUFFER_BIT);
+    ImGui::Render();
     ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 
     glfwSwapBuffers(window);
@@ -166,13 +170,14 @@ void Editor::loadScene(std::shared_ptr<Scene> scene) {
   //TODO: move this to somewhere else
   this->scene_ = scene;
   auto config = scene_->get_config();
-  config->camera_position = Eigen::Vector3f(0,0,10);
-  config->view_center = Eigen::Vector3f(1,1,1);
+  config->camera_position = Eigen::Vector3f(0,0,-10);
+  config->camera_direction = Eigen::Vector3f(0,0,-1);
+  config->up_direction = Eigen::Vector3f(0, 1, 0);
   config->light_position = Eigen::Vector3f(200,200,200);
   config->light_intensity = 50000;
   config->fov = 45;
   config->zNear = 0.1;
-  config->zFar = 50;
+  config->zFar = 100;
   auto light1 = Light(config->light_position,config->light_intensity);
   scene->addLight(light1);
 }

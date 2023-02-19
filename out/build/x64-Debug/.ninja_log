@@ -1,0 +1,21 @@
+# ninja log v5
+50	1571	6984768103364829	CMakeFiles/TinyRenderPlus.dir/ThirdPartyLib/imgui/imgui_demo.cpp.obj	eb4501b9bf018293
+44	2540	6984768112973063	CMakeFiles/TinyRenderPlus.dir/ThirdPartyLib/imgui/imgui.cpp.obj	14f2275fb6a0b1d8
+56	1544	6984768103234622	CMakeFiles/TinyRenderPlus.dir/ThirdPartyLib/imgui/imgui_draw.cpp.obj	59b812870b43b377
+1571	3997	6984768128534782	CMakeFiles/TinyRenderPlus.dir/ThirdPartyLib/tinyrender/tgaimage.cpp.obj	81bccad0d3343953
+71	1373	6984768101402661	CMakeFiles/TinyRenderPlus.dir/ThirdPartyLib/imgui/imgui_impl_opengl3.cpp.obj	8b7feb4749d7e2a5
+1544	2939	6984768117875052	CMakeFiles/TinyRenderPlus.dir/ThirdPartyLib/imgui/imgui_widgets.cpp.obj	e3772edfa7322669
+14	258	6984769000820057	build.ninja	fb6f85e1b6c24cad
+1373	2479	6984768112652937	CMakeFiles/TinyRenderPlus.dir/ThirdPartyLib/imgui/imgui_tables.cpp.obj	c9512b774674432d
+13	34	0	clean	50b927e80e64e11b
+64	2347	6984768110846615	CMakeFiles/TinyRenderPlus.dir/ThirdPartyLib/imgui/imgui_impl_glfw.cpp.obj	93ced34f349dae10
+20	5860	6984768147063096	CMakeFiles/TinyRenderPlus.dir/Source/rasterizer.cpp.obj	3670696b0a293a65
+30	5780	6984768146327625	CMakeFiles/TinyRenderPlus.dir/Source/triangle.cpp.obj	c4459d609022bad7
+2540	7390	6984768162535117	CMakeFiles/TinyRenderPlus.dir/Source/Shader/shader.cpp.obj	7f906795e560f161
+2479	8034	6984768168939207	CMakeFiles/TinyRenderPlus.dir/Source/Shader/bling_phong_shader.cpp.obj	c81c9e93bcb75b4d
+15	6937	6984768157999146	CMakeFiles/TinyRenderPlus.dir/Source/object.cpp.obj	19696d3b34133992
+2939	8077	6984768169421784	CMakeFiles/TinyRenderPlus.dir/Source/Shader/transform.cpp.obj	90d5a1f1bbf2975d
+38	6540	6984768153997048	CMakeFiles/TinyRenderPlus.dir/GUI/editor.cpp.obj	28ca1b85e6a94823
+24	6397	6984768152533398	CMakeFiles/TinyRenderPlus.dir/Source/scene.cpp.obj	c65ec7942f020063
+2347	8917	6984768177819382	CMakeFiles/TinyRenderPlus.dir/main.cpp.obj	eba8e8d61f18ee46
+8917	11011	6984768182636466	TinyRenderPlus.exe	cf5e500752bd7e5c

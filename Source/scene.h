@@ -21,6 +21,7 @@
 #include <render.h>
 #include <shader.h>
 #include <shader_data.h>
+#include <camera.h>
 
 struct SceneConfig{
   //IMPORTANT: set default value
@@ -32,34 +33,23 @@ struct SceneConfig{
   float aspect_ratio = 0;//aspect_ration = width / height
   float zNear = 10;
   float zFar = 300;
+  float yaw = 0;
+  float pitch = 0;
   SceneConfig(int width,int height,float fov)
   :width(width),height(height),fov(fov){
       aspect_ratio = static_cast<float>(width) / height;
   }
   //Camera
   Eigen::Vector3f camera_position = Eigen::Vector3f::Zero();
-  Eigen::Vector3f view_center = Eigen::Vector3f::Zero();
+  Eigen::Vector3f camera_direction = Eigen::Vector3f::Zero();
+  Eigen::Vector3f up_direction = Eigen::Vector3f::Zero();
   //Light
   //TODO: maybe you can move lights and other TGAImage to resource pack.
   //TODO: use multi lights.
   Eigen::Vector3f light_position = Eigen::Vector3f::Zero();
   float light_intensity = 0;
 
-  [[maybe_unused]] void debugPrint(){
-    #ifdef NDEBUG
-        return;
-    #endif
-    std::cerr << " ---- config ----\n";
-    std::cerr << "width x height = " << width << " x " << height << std::endl;
-    std::cerr << "scale = " << scale << std::endl;
-    std::cerr << "fov = " << fov << std::endl;
-    std::cerr << "aspect_ratio = " << aspect_ratio << std::endl;
-    std::cerr << "zNear = " << zNear << std::endl;
-    std::cerr << "zFar = " << zFar << std::endl;
-    std::cerr << "camera_position : " << camera_position << std::endl;
-    std::cerr << "view_center : " << view_center << std::endl;
-    std::cerr << " ---- ------ ----\n";
-  }
+  [[maybe_unused]] void debugPrint();
 };
 class Scene {
  private:
@@ -69,6 +59,7 @@ class Scene {
   GLuint render_result_;
   TGAImage render_buffer_;
  private:
+  Camera camera_;
   std::unique_ptr<Shader>shader_;
   //TODO: vector seems a little bit slow, need profiling
   std::vector<float> z_buffer_;
@@ -105,6 +96,7 @@ class Scene {
   void addObject(std::shared_ptr<Object> obj);
   void addLight(Light &light);
   void applySceneConfig();//call this before each frame rendering
+  void generateMVPMatrix();
  public:
   int get_width();
   int get_height();

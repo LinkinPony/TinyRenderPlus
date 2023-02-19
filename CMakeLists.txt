@@ -1,14 +1,15 @@
 cmake_minimum_required(VERSION 3.24)
 project(TinyRenderPlus CXX)
 set(CMAKE_CXX_STANDARD 23)
-set(CMAKE_CXX_FLAGS -O3)
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -msse -msse2 -msse3")
+set(CMAKE_CXX_FLAGS -O2)
+#set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -msse -msse2 -msse3")
 #set(CMAKE_CXX_FLAGS  "-pg")
 #add_compile_options(-fmodules-ts)
 
 ## Find dependencies
-find_package(glfw3 REQUIRED)
-find_package(benchmark REQUIRED)
+find_package(glfw3 CONFIG REQUIRED)
+find_package(unofficial-angle REQUIRED CONFIG)
+find_package(benchmark REQUIRED CONFIG)
 #add_subdirectory(UnitTest)
 aux_source_directory(Source SOURCE_SRC)
 aux_source_directory(GUI GUI_SRC)
@@ -31,7 +32,7 @@ add_executable(TinyRenderPlus
         ${IMGUI_SRC}
         ${TINY_RENDER_SRC}
         main.cpp
-        Source/Render/render.h Source/Shader/shader.h Source/Shader/shader_data.h Source/Shader/bling_phong_shader.cpp Source/Shader/bling_phong_shader.h Source/Shader/shader.cpp Source/Shader/transform.cpp Source/Shader/transform.h)
+        Source/Render/render.h Source/Shader/shader.h Source/Shader/shader_data.h Source/Shader/bling_phong_shader.cpp Source/Shader/bling_phong_shader.h Source/Shader/shader.cpp Source/Shader/transform.cpp Source/Shader/transform.h "Source/camera.cpp" "Source/camera.h")
 
-target_link_libraries(TinyRenderPlus glfw3 GL dl X11 pthread benchmark::benchmark)
+target_link_libraries(TinyRenderPlus glfw unofficial::angle::libGLESv2 benchmark::benchmark)
 #set_target_properties(TinyRenderPlus PROPERTIES LINKER_LANGUAGE CXX)

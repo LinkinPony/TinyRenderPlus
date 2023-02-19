@@ -33,3 +33,9 @@
 
 # cmake
 /cmake-build-debug/
+
+# visual studio
+/.vs/
+/Debug/
+/Release/
+/x64/
