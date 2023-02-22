@@ -7,6 +7,7 @@
 
 #include <eigen3/Eigen/Eigen>
 #include <iostream>
+#include <sstream>
 void Scene::initVertexVaryingData() {
   // TODO: change function name
   object_vertex_vary_data_.clear();
@@ -23,8 +24,8 @@ void Scene::initVertexVaryingData() {
 
 void Scene::processSingleVertex(ShaderVaryingData &data) {
   shader_->vertexShader(data, shader_uniform_data_);
-  //data.debugPrint();
-  // cut off
+  // data.debugPrint();
+  //  cut off
   bool skip_flag = true;
   for (int i = 0; i < 3; i++) {
     float absw = fabs(data.vertex[i].w());
@@ -33,7 +34,7 @@ void Scene::processSingleVertex(ShaderVaryingData &data) {
       skip_flag = false;
     }
   }
-  //data.skip |= skip_flag;
+  // data.skip |= skip_flag;
   if (!data.skip) {
     for (int i = 0; i < 3; i++) {
       data.vertex[i] = shader_uniform_data_.m_viewport * data.vertex[i];
@@ -48,7 +49,7 @@ void Scene::processSingleVertex(ShaderVaryingData &data) {
 }
 
 void Scene::processAllVertex() {
-  for (auto &vec : object_vertex_vary_data_) { 
+  for (auto &vec : object_vertex_vary_data_) {
     for (auto &it : vec) {
       processSingleVertex(it);
     }
@@ -102,7 +103,7 @@ void Scene::processAllFragment() {
   }
 }
 void Scene::drawSingleFragment(ShaderVaryingData &data) {
-  //data.debugPrint();
+  // data.debugPrint();
   if (data.skip) {
     return;
   }
@@ -110,13 +111,12 @@ void Scene::drawSingleFragment(ShaderVaryingData &data) {
   int y = data.coord_y;
   int idx = x + y * get_width();
   if (z_buffer_[idx] > data.depth) {
-    
     z_buffer_[idx] = data.depth;
     auto &color = data.output_color;
-    //data.output_color.a = 255;
-    //color = color * 10;
+    // data.output_color.a = 255;
+    // color = color * 10;
     render_buffer_->set(x, y, color);
-    //data.debugPrint();
+    // data.debugPrint();
   }
   // TODO: delete debug output
 }
@@ -135,12 +135,12 @@ void Scene::nextFrame() {
   processAllTriangle();
   processAllFragment();
   drawAllFragment();
-  //render_buffer_.flip_vertically();
-  //for (int i = 0; i < get_width(); i++) {
-  //  for (int j = 0; j < get_height(); j++) {
-  //    render_buffer_.set(i, j, TGAColor(255, 255, 255, 255));
-  //  }
-  //}
+  // render_buffer_.flip_vertically();
+  // for (int i = 0; i < get_width(); i++) {
+  //   for (int j = 0; j < get_height(); j++) {
+  //     render_buffer_.set(i, j, TGAColor(255, 255, 255, 255));
+  //   }
+  // }
 }
 int Scene::get_height() { return config_->height; }
 int Scene::get_width() { return config_->width; }
@@ -163,13 +163,8 @@ void Scene::addLight(Light &light) {
   shader_uniform_data_.lights.emplace_back(light);
 }
 void Scene::applySceneConfig() {
-  // TODO: delete config output
-  config_->debugPrint();
-  auto &camera = config_->camera_;
-  camera.set_camera_direction(config_->camera_direction);
-  camera.set_camera_position(config_->camera_position);
-  camera.set_up_direction(config_->up_direction);
-  //camera.moveByEulerianAngles(config_->pitch, config_->yaw);
+  std::shared_ptr<Camera> camera = config_->camera_;
+  //camera->moveByEulerianAngles(config_->pitch, config_->yaw);
   generateMVPMatrix();
   shader_uniform_data_.m_viewport =
       Transform::viewportTrans(config_->width, config_->height);
@@ -182,12 +177,12 @@ void Scene::generateMVPMatrix() {
   auto m_model = Transform::modelTrans(0, 1);
   // View Matrix
   // Controled by camera
-  auto m_view = camera.getLookAtMat();
-  //Projection Matrix
+  auto m_view = camera->getLookAtMat();
+  // Projection Matrix
   auto m_projection = Transform::projectionTrans(
       config_->fov, config_->aspect_ratio, config_->zNear, config_->zFar);
   auto matrix = m_projection * m_view * m_model;
-  //TODO: delete this output
+  // TODO: delete this output
   Eigen::IOFormat CleanFmt(4, 0, ", ", "\n", "[", "]");
   std::cout << matrix.format(CleanFmt) << "\n------------------\n";
   set_camera_mvp_matrix(matrix);
@@ -195,6 +190,23 @@ void Scene::generateMVPMatrix() {
 
 void Scene::writeTGAImage(const std::string &filename) {
   this->render_buffer_->write_tga_file(filename.c_str());
+}
+
+std::string SceneConfig::getInfoString() {
+  std::stringstream res_stream;
+  res_stream << " ---- config ----\n";
+  res_stream << "width x height = " << width << " x " << height << std::endl;
+  res_stream << "scale = " << scale << std::endl;
+  res_stream << "fov = " << fov << std::endl;
+  res_stream << "aspect_ratio = " << aspect_ratio << std::endl;
+  res_stream << "zNear = " << zNear << std::endl;
+  res_stream << "zFar = " << zFar << std::endl;
+  res_stream << "camera_position : " << camera_->getref_camera_position()
+             << std::endl;
+  res_stream << "camera_direction : " << camera_->getref_camera_direction()
+             << std::endl;
+  res_stream << " ---- ------ ----\n";
+  return res_stream.str();
 }
 
 void SceneConfig::debugPrint() {
@@ -205,7 +217,9 @@ void SceneConfig::debugPrint() {
   std::cerr << "aspect_ratio = " << aspect_ratio << std::endl;
   std::cerr << "zNear = " << zNear << std::endl;
   std::cerr << "zFar = " << zFar << std::endl;
-  std::cerr << "camera_position : " << camera_position << std::endl;
-  std::cerr << "camera_direction : " << camera_direction << std::endl;
+  std::cerr << "camera_position : " << camera_->getref_camera_position()
+            << std::endl;
+  std::cerr << "camera_direction : " << camera_->getref_camera_direction()
+            << std::endl;
   std::cerr << " ---- ------ ----\n";
 }

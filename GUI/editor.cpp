@@ -8,7 +8,6 @@
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"
 #endif
-
 #include <GLFW/glfw3.h>
 #include <glad/glad.h>
 
@@ -16,8 +15,19 @@
 #include "ThirdPartyLib/imgui/imgui_impl_glfw.h"
 #include "ThirdPartyLib/imgui/imgui_impl_opengl3.h"
 
-const int screen_width = 1280;
-const int screen_height = 720;
+static std::shared_ptr<Editor> editor;
+
+void glmouseCallbackWrapper(GLFWwindow* window, double xpos, double ypos) {
+  if (editor == nullptr) return;
+  editor->mouseCallback(xpos, ypos);
+}
+
+void glscrollCallbackWrapper(GLFWwindow* window, double xoffset,
+    double yoffset) {
+  if (editor == nullptr) return;
+  editor->scrollCallback(xoffset, yoffset);
+}
+
 void framebuffer_size_callback(GLFWwindow* window, int width, int height) {
   glViewport(0, 0, width, height);
   return;
@@ -25,29 +35,38 @@ void framebuffer_size_callback(GLFWwindow* window, int width, int height) {
 void Editor::loadScene(std::shared_ptr<Scene> scene) {
   // TODO: move this to somewhere else
   this->scene_ = scene;
-  auto config = scene_->get_config();
-  config->camera_position = Eigen::Vector3f(0, 0, 3);
-  config->camera_direction = Eigen::Vector3f(0, 0, -1);
-  config->up_direction = Eigen::Vector3f(0, 1, 0);
-  config->light_position = Eigen::Vector3f(200, 200, 200);
-  config->light_intensity = 500;
-  config->fov = 45;
-  config->zNear = 0.1;
-  config->zFar = 100;
-  auto light1 = Light(config->light_position, config->light_intensity);
+  config_ = scene_->get_config();
+  config_->camera_->getref_camera_direction() = Eigen::Vector3f(0, 0, -1);
+  config_->camera_->getref_camera_position() = Eigen::Vector3f(0, 0, 3);
+  config_->camera_->getref_up_direction() = Eigen::Vector3f(0, 1, 0);
+  config_->light_position = Eigen::Vector3f(200, 200, 200);
+  config_->light_intensity = 500;
+  config_->fov = 45;
+  config_->zNear = 0.1;
+  config_->zFar = 100;
+  auto light1 = Light(config_->light_position, config_->light_intensity);
   scene->addLight(light1);
+}
+void processInput(GLFWwindow* window, std::shared_ptr<Camera> camera);
+void bindVector3fToInputBox(Eigen::Vector3f& target,
+                            const std::string& target_name, float v_min,
+                            float v_max) {
+  ImGui::SliderFloat((target_name + ".x").c_str(), &target.x(), v_min, v_max);
+  ImGui::SliderFloat((target_name + ".y").c_str(), &target.y(), v_min, v_max);
+  ImGui::SliderFloat((target_name + ".z").c_str(), &target.z(), v_min, v_max);
 }
 
 int Editor::run() {
+  editor = this->shared_from_this();
   glfwInit();
   glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
   glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
   glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
   glfwWindowHint(GLFW_RESIZABLE, GL_FALSE);
-  GLFWwindow* window = glfwCreateWindow(screen_width, screen_height,
-                                        "Demo window", nullptr, nullptr);
+  GLFWwindow* window = glfwCreateWindow(screen_width_, screen_height_,
+                                        "TinyRender Plus", nullptr, nullptr);
   if (window == nullptr) {
-    std::cout << "Create window failed." << std::endl;
+    std::cout << "Failed to create window." << std::endl;
     glfwTerminate();
     return -1;
   }
@@ -80,7 +99,23 @@ int Editor::run() {
   // Setup Dear ImGui style
   ImGui::StyleColorsDark();
 
+  float last_time = glfwGetTime();
+  std::shared_ptr<Camera> camera = scene_->get_config()->camera_;
+
+
   while (!glfwWindowShouldClose(window)) {
+    float cur_time = glfwGetTime();
+    float delta_time = cur_time - last_time;
+    camera->set_move_speed(delta_time * 0.05);
+    if (capture_cursor_flag_ == true) {
+      glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+      glfwSetCursorPosCallback(window, glmouseCallbackWrapper);
+      glfwSetScrollCallback(window, glscrollCallbackWrapper);
+    } else {
+      glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+      glfwSetCursorPosCallback(window, nullptr);
+      glfwSetScrollCallback(window, nullptr);
+    }
     glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT);
     scene_->nextFrame();  
@@ -90,16 +125,17 @@ int Editor::run() {
                  scene_->get_height(), 0, GL_BGR, GL_UNSIGNED_BYTE,
                  scene_->get_render_buffer()->data);
     //
+    
     ImGui_ImplOpenGL3_NewFrame();
     ImGui_ImplGlfw_NewFrame();
     ImGui::NewFrame();
     // Show render result
+
     buildRenderResultWidget();
     buildConfigWidget();
-
     ImGui::Render();
     ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
-
+    processInput(window,scene_->get_config()->camera_);
     glfwSwapBuffers(window);
     glfwPollEvents();
   }
@@ -118,20 +154,74 @@ void Editor::buildRenderResultWidget() {
   ImGui::End();
 }
 
-void bindVectorToInputBox(Eigen::Vector3f & target,const std::string & target_name) {
 
-    ImGui::
-}
 
 void Editor::buildConfigWidget() {
   ImGui::Begin("Config");
-  auto config = scene_->get_config();
-
-
-
-  
-  ImGui::InputFloat3()
-
-
+  bindVector3fToInputBox(
+      scene_->get_config()->camera_->getref_camera_direction(),
+      "camera direction", -50, 50);
+  bindVector3fToInputBox(
+      scene_->get_config()->camera_->getref_camera_position(),
+      "camera position", -50, 50);
+  bindVector3fToInputBox(scene_->get_config()->camera_->getref_up_direction(),
+                         "up direction", -1, 1);
   ImGui::End();
+}
+
+void Editor::mouseCallback(double xpos, double ypos) {
+  static float last_x = screen_width_ / 2;
+  static float last_y = screen_height_ / 2;
+  float xoffset = xpos - last_x;
+  float yoffset = last_y - ypos;
+  last_x = xpos;
+  last_y = ypos;
+  float sensitivity = 0.05;
+  xoffset *= sensitivity;
+  yoffset *= sensitivity;
+  auto& yaw = config_->yaw;
+  auto& pitch = config_->pitch;
+  yaw += xoffset;
+  pitch += yoffset;
+  // TODO: use const var
+  if (pitch > 89.0f) {
+    pitch = 89;
+  }
+  if (pitch < -89.0f) {
+    pitch = -89;
+  }
+}
+
+void Editor::scrollCallback(double xoffset, double yoffset) {
+  float& fov = config_->fov;
+  if (fov >= 1.0f && fov <= 45.0f) fov -= yoffset;
+  if (fov <= 1.0f) fov = 1.0f;
+  if (fov >= 45.0f) fov = 45.0f;
+}
+
+void processInput(GLFWwindow* window, std::shared_ptr<Camera> camera) {
+  if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS) {
+    glfwSetWindowShouldClose(window, true);
+  }
+  if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) {
+    camera->moveByDirection(Camera::MoveDirection::kForward);
+  }
+  if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS) {
+    camera->moveByDirection(Camera::MoveDirection::kLeft);
+  }
+  if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS) {
+    camera->moveByDirection(Camera::MoveDirection::kBack);
+  }
+  if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS) {
+    camera->moveByDirection(Camera::MoveDirection::kRight);
+  }
+  if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS) {
+    camera->moveByDirection(Camera::MoveDirection::kUp);
+  }
+  if (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS) {
+    camera->moveByDirection(Camera::MoveDirection::kDown);
+  }
+  if (glfwGetKey(window, GLFW_KEY_LEFT_ALT) == GLFW_PRESS) {
+      
+  }
 }

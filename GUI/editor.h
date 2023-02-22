@@ -7,7 +7,7 @@
 #include "scene.h"
 //import Render.Scene;
 
-class Editor {
+class Editor : public std::enable_shared_from_this<Editor> {
  public:
   std::shared_ptr<Scene>scene_;
   GLuint raw_image_texture_;
@@ -17,9 +17,19 @@ class Editor {
 
   private:
   GLuint render_result;
+   int screen_width_ = 1280;
+  int screen_height_ = 720;
+   bool capture_cursor_flag_ = false;
+
+ private:
+   std::shared_ptr<SceneConfig> config_;
  private:
   void buildRenderResultWidget();
   void buildConfigWidget();
+
+ public:
+  void mouseCallback(double xpos, double ypos);
+  void scrollCallback(double xoffset,double yoffset);
 };
 
 #endif //TINYRENDERPLUS_GUI_EDITOR_H_

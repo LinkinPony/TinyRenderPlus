@@ -37,6 +37,7 @@ Eigen::Matrix4f Transform::viewTrans(const Eigen::Vector3f &camera_position,
 Eigen::Matrix4f Transform::orthoTrans(float l, float r, float b, float t,
                                       float f, float n) {
   Eigen::Matrix4f m_orthoL, m_orthoR, m_ortho;
+
   m_orthoL << 2 / (r - l), 0, 0, 0, 0, 2 / (t - b), 0, 0, 0, 0, 2 / (n - f), 0,
       0, 0, 0, 1;
   m_orthoR << 1, 0, 0, -(l + r) / 2, 0, 1, 0, -(b + t) / 2, 0, 0, 1,
@@ -53,10 +54,7 @@ Eigen::Matrix4f Transform::viewportTrans(int width, int height) {
   Eigen::Matrix4f m_viewport;
   float w = width;
   float h = height;
-  m_viewport << 
-      w / 2, 0, 0, (w - 1) / 2, 
-      0, h / 2, 0, (h - 1) / 2, 
-      0, 0, 1, 0,
+  m_viewport << w / 2, 0, 0, (w - 1) / 2, 0, h / 2, 0, (h - 1) / 2, 0, 0, 1, 0,
       0, 0, 0, 1;
   return m_viewport;
 }

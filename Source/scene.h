@@ -27,15 +27,13 @@ struct SceneConfig {
   float zFar = 300;
   float yaw = 0;
   float pitch = 0;
-  Camera camera_;
+  std::shared_ptr<Camera> camera_;
   SceneConfig(int width, int height, float fov)
       : width(width), height(height), fov(fov) {
     aspect_ratio = static_cast<float>(width) / height;
   }
+  std::string getInfoString();
   // Camera
-  Eigen::Vector3f camera_position = Eigen::Vector3f::Zero();
-  Eigen::Vector3f camera_direction = Eigen::Vector3f::Zero();
-  Eigen::Vector3f up_direction = Eigen::Vector3f::Zero();
   // Light
   // TODO: maybe you can move lights and other TGAImage to resource pack.
   // TODO: use multi lights.
@@ -79,8 +77,10 @@ class Scene {
   Scene(int width, int height, float fov, std::unique_ptr<Shader> shader)
       : shader_(std::move(shader)) {
     config_ = std::make_unique<SceneConfig>(width, height, fov);
+    config_->camera_ = std::make_unique<Camera>();
     z_buffer_.assign(width * height, INF);
     render_buffer_ = std::make_shared<TGAImage>(width, height, TGAImage::RGB);
+    
   }
   void nextFrame();
   void addObject(std::shared_ptr<Object> obj);

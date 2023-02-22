@@ -23,38 +23,38 @@ Camera::Camera(const Eigen::Vector3f& camera_position,
 }
 
 Camera::Camera() {
-  auto camera_position = Eigen::Vector3f(0, 0, -10);
+  auto camera_position = Eigen::Vector3f(0, 0, 3);
   auto camera_direction = Eigen::Vector3f(0, 0, 1);
   auto up_direction = Eigen::Vector3f(0, 1, 0);
   Camera(camera_position, camera_direction, up_direction);
 }
 
 Eigen::Matrix4f Camera::getLookAtMat() {
-  return Transform::viewTrans(get_camera_position(), get_camera_target(),
-                              get_up_direction());
+  return Transform::viewTrans(getref_camera_position(), getref_camera_target(),
+                              getref_up_direction());
 }
 
 void Camera::moveByDirection(MoveDirection direction) {
-  auto cam_pos = get_camera_position();
+  Eigen::Vector3f cam_pos = getref_camera_position();
   float speed = get_move_speed();
   switch (direction) {
     case Camera::MoveDirection::kLeft:
-      cam_pos -= speed * get_camera_right_direction();
+      cam_pos += speed * getref_camera_right_direction();
       break;
     case Camera::MoveDirection::kRight:
-      cam_pos += speed * get_camera_right_direction();
+      cam_pos -= speed * getref_camera_right_direction();
       break;
     case Camera::MoveDirection::kForward:
-      cam_pos += speed * get_camera_direction();
+      cam_pos += speed * getref_camera_direction();
       break;
     case Camera::MoveDirection::kBack:
-      cam_pos -= speed * get_camera_direction();
+      cam_pos -= speed * getref_camera_direction();
       break;
     case Camera::MoveDirection::kUp:
-      cam_pos += speed * get_up_direction();
+      cam_pos += speed * getref_up_direction();
       break;
     case Camera::MoveDirection::kDown:
-      cam_pos -= speed * get_up_direction();
+      cam_pos -= speed * getref_up_direction();
       break;
     default:
       break;
