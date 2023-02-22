@@ -32,6 +32,7 @@ struct ShaderUniformData{
   std::vector<std::shared_ptr<TGAImage> > u_diffuse;//diffuse map for each object. indexed with object id.
   std::vector<std::shared_ptr<TGAImage> > u_normal_map;//normal map for each object. indexed with object id.
   Eigen::Matrix4f camera_MVP;//TODO: change this name
+  Eigen::Matrix4f m_viewport;
   std::vector<Light>lights;//TODO: maybe need optimize
 };
 
@@ -42,7 +43,7 @@ struct ShaderVaryingData{
   //TODO: try Struct Of Array(SOA) optimize.
   int coord_x = 0,coord_y = 0;//screen coordinate
   int object_id = 0;//for u_texture,u_diffuse
-  Eigen::Vector3f vertex[3];//modified in vertex shader, and should be read-only in fragment shader
+  Eigen::Vector4f vertex[3];//modified in vertex shader, and should be read-only in fragment shader
   Eigen::Vector3f norm[3];
   Eigen::Vector3f color[3];
   Eigen::Vector2f texture_coords[3];//texture coord, range in [0,1]
@@ -65,15 +66,14 @@ struct ShaderVaryingData{
     }
   }
   [[maybe_unused]] void debugPrint(){
-    #ifdef NDEBUG
-        return;
-    #endif
     std::cout << " ---- \n";
     std::cout << "Skipped: " << (skip?"true":"false") << std::endl;
     std::cout << "[x,y] = " << coord_x << "," << coord_y << std::endl;
     std::cout << "Object id: " << object_id << std::endl;
-    std::cout << "Color: " << this->texture_color << std::endl;
+    std::cout << "Texture Color: " << this->texture_color << std::endl;
+    std::cout << "Render Color: " << this->output_color << std::endl;
     std::cout << "depth: " << this->depth << std::endl;
+    std::cout << "Vertex 1: " << vertex[1] << std::endl;
   }
 };
 #endif //TINYRENDERPLUS_RENDER_SHADER_SHADER_DATA_H_

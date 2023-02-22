@@ -4,48 +4,41 @@
 #ifndef TINYRENDERPLUS_RENDER_SCENE_H_
 #define TINYRENDERPLUS_RENDER_SCENE_H_
 #include <object.h>
+
 #include <memory>
-#include "imgui.h"
-#include "imgui_impl_glfw.h"
-#include "imgui_impl_opengl3.h"
-#if defined(IMGUI_IMPL_OPENGL_ES2)
-#include <GLES2/gl2.h>
-#endif
-#include <GLFW/glfw3.h>  // Will drag system OpenGL headers
-#if defined(_MSC_VER) && (_MSC_VER >= 1900) && !defined(IMGUI_DISABLE_WIN32_FUNCTIONS)
-#pragma comment(lib, "legacy_stdio_definitions")
-#endif
-#include <iostream>
-#include <eigen3/Eigen/Eigen>
-#include <tgaimage.h>
+#include <camera.h>
 #include <render.h>
 #include <shader.h>
 #include <shader_data.h>
-#include <camera.h>
+#include <tgaimage.h>
 
-struct SceneConfig{
-  //IMPORTANT: set default value
-  //Scene
+#include <eigen3/Eigen/Eigen>
+#include <iostream>
+
+struct SceneConfig {
+  // IMPORTANT: set default value
+  // Scene
   int width = 0;
   int height = 0;
   float scale = 0;
-  float fov = 0;//vertical fov
-  float aspect_ratio = 0;//aspect_ration = width / height
+  float fov = 0;           // vertical fov
+  float aspect_ratio = 0;  // aspect_ration = width / height
   float zNear = 10;
   float zFar = 300;
   float yaw = 0;
   float pitch = 0;
-  SceneConfig(int width,int height,float fov)
-  :width(width),height(height),fov(fov){
-      aspect_ratio = static_cast<float>(width) / height;
+  Camera camera_;
+  SceneConfig(int width, int height, float fov)
+      : width(width), height(height), fov(fov) {
+    aspect_ratio = static_cast<float>(width) / height;
   }
-  //Camera
+  // Camera
   Eigen::Vector3f camera_position = Eigen::Vector3f::Zero();
   Eigen::Vector3f camera_direction = Eigen::Vector3f::Zero();
   Eigen::Vector3f up_direction = Eigen::Vector3f::Zero();
-  //Light
-  //TODO: maybe you can move lights and other TGAImage to resource pack.
-  //TODO: use multi lights.
+  // Light
+  // TODO: maybe you can move lights and other TGAImage to resource pack.
+  // TODO: use multi lights.
   Eigen::Vector3f light_position = Eigen::Vector3f::Zero();
   float light_intensity = 0;
 
@@ -54,59 +47,56 @@ struct SceneConfig{
 class Scene {
  private:
   const float INF = 1e18;
+
  private:
-  std::shared_ptr<SceneConfig>config_;
-  GLuint render_result_;
-  TGAImage render_buffer_;
+  std::shared_ptr<SceneConfig> config_;
+  std::shared_ptr<TGAImage> render_buffer_;
+
  private:
-  Camera camera_;
-  std::unique_ptr<Shader>shader_;
-  //TODO: vector seems a little bit slow, need profiling
+  std::unique_ptr<Shader> shader_;
+  // TODO: vector seems a little bit slow, need profiling
   std::vector<float> z_buffer_;
-  std::vector<ShaderVaryingData>fragment_vary_data_;
-  //todo: use point. avoid copy
+  std::vector<ShaderVaryingData> fragment_vary_data_;
+  // todo: use point. avoid copy
   ShaderUniformData shader_uniform_data_;
   std::vector<std::shared_ptr<Object>> objects_;
-  std::vector<std::vector<ShaderVaryingData> > object_vertex_vary_data_;
+  std::vector<std::vector<ShaderVaryingData>> object_vertex_vary_data_;
+
  private:
-  //draw triangle for specific object and it's face.
+  // draw triangle for specific object and it's face.
 
   void initVertexVaryingData();
-  void processSingleVertex(ShaderVaryingData & data);
+  void processSingleVertex(ShaderVaryingData &data);
   void processAllVertex();
-  void processSingleTriange(ShaderVaryingData & data);
+  void processSingleTriange(ShaderVaryingData &data);
   void processAllTriangle();
-  void processSingleFragment(ShaderVaryingData & data);
+  void processSingleFragment(ShaderVaryingData &data);
   void processAllFragment();
-  void drawSingleFragment(ShaderVaryingData & data);
+  void drawSingleFragment(ShaderVaryingData &data);
   void drawAllFragment();
-//  RenderInterface render;
+  //  RenderInterface render;
  public:
-  Scene(int width,int height,float fov,std::unique_ptr<Shader>shader)
-  :shader_(std::move(shader)){
-    config_ = std::make_unique<SceneConfig>(width,height,fov);
-    z_buffer_.assign(width * height,INF);
-    render_buffer_ = TGAImage(width,height,TGAImage::RGB);
-    genTextureInit();
+  Scene(int width, int height, float fov, std::unique_ptr<Shader> shader)
+      : shader_(std::move(shader)) {
+    config_ = std::make_unique<SceneConfig>(width, height, fov);
+    z_buffer_.assign(width * height, INF);
+    render_buffer_ = std::make_shared<TGAImage>(width, height, TGAImage::RGB);
   }
-
-  bool loadTextureFromMemory();
-  void genTextureInit();
   void nextFrame();
   void addObject(std::shared_ptr<Object> obj);
   void addLight(Light &light);
-  void applySceneConfig();//call this before each frame rendering
+  void applySceneConfig();  // call this before each frame rendering
   void generateMVPMatrix();
+  void writeTGAImage(const std::string &filename);
+
  public:
   int get_width();
   int get_height();
-  GLuint get_render_result();
   void set_height(int height);
   void set_width(int width);
   void set_camera_mvp_matrix(const Eigen::Matrix4f &mat);
-  std::shared_ptr<SceneConfig> get_config(){
-    return config_;
-  }
+  std::shared_ptr<SceneConfig> get_config() { return config_; }
+  std::shared_ptr<TGAImage> get_render_buffer() { return render_buffer_; }
 };
 
-#endif //TINYRENDERPLUS_RENDER_SCENE_H_
+#endif  // TINYRENDERPLUS_RENDER_SCENE_H_

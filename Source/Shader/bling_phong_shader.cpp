@@ -18,7 +18,7 @@ TGAColor BlingPhongShader::diffuse(const Eigen::Vector2f &uvf, int obj_id,
                      uvf[1] * diffusemap->get_height());
   return diffusemap->get(uv[0], uv[1]);
 }
-Eigen::Vector3f Barycentric(const Eigen::Vector3f (&vertex)[3],
+Eigen::Vector3f Barycentric(const Eigen::Vector4f (&vertex)[3],
                             const Eigen::Vector2i &P) {
   // Calculate barycentric of P in triangle defined by vertex[3]
   Eigen::Vector3f result =  // cal cross
@@ -53,14 +53,14 @@ void BlingPhongShader::fragmentShader(ShaderVaryingData &data,
     data.depth += bary[i] * vertex[i].z();
     diffuse_uv[0] += bary[i] * data.texture_coords[i][0];
     diffuse_uv[1] += bary[i] * data.texture_coords[i][1];
-    cur_position = cur_position + (vertex[i] * bary[i]);
+    cur_position = cur_position + (vertex[i].head<3>() * bary[i]);
     cur_norm = cur_norm + data.norm[i] * bary[i];
   }
   data.texture_color = diffuse(diffuse_uv, data.object_id, u_data);
   // diffuse light
   float total_light = 0;
   for (auto light : u_data.lights) {
-    float ambient_light = 0.1;
+    float ambient_light = 1;
     Eigen::Vector3f light_direction =
         (light.light_position - cur_position).normalized();
     float dis = (light.light_position - cur_position).norm();
@@ -86,25 +86,7 @@ void BlingPhongShader::fragmentShader(ShaderVaryingData &data,
 }
 void BlingPhongShader::vertexShader(ShaderVaryingData &data,
                                     const ShaderUniformData &u_data) {
-  int skip_bit = 0;
-  const int skip_mask = 0b111;
   for (int i = 0; i < 3; i++) {
-    // TODO: change Matrix4f to Affine3f
-    //    std::cout << "Before: " << data.vertex[i] << std::endl;
-    Eigen::Vector4f temp =
-        u_data.camera_MVP * Eigen::Vector4f(data.vertex[i].x(),
-                                            data.vertex[i].y(),
-                                            data.vertex[i].z(), 1.0f);
-    float absw = fabs(temp.w());
-    if (fabs(temp.x()) > absw || fabs(temp.y()) > absw ||
-        fabs(temp.z()) > absw) {
-      skip_bit |= (1 << i);
-    }
-  }
-  // TODO: move this cut out of shader, like OpenGL do.
-  // if triangle's all three points are out of clip coordinate system, cut this
-  // triangle.
-  if (skip_bit == skip_mask) {
-    data.skip = true;
+    data.vertex[i] = u_data.camera_MVP * data.vertex[i];
   }
 }

@@ -57,7 +57,7 @@ int Object::readObjFromFile(const std::string& filename){
         tinyobj::real_t vx = attrib.vertices[3*size_t(idx.vertex_index)+0];
         tinyobj::real_t vy = attrib.vertices[3*size_t(idx.vertex_index)+1];
         tinyobj::real_t vz = attrib.vertices[3*size_t(idx.vertex_index)+2];
-        temp_triangle.v_[v] = Eigen::Vector3f (vx,vy,vz);
+        temp_triangle.v_[v] = Eigen::Vector4f (vx,vy,vz,1);
         // Check if `normal_index` is zero or positive. negative = no normal data
         if (idx.normal_index >= 0) {
           tinyobj::real_t nx = attrib.normals[3*size_t(idx.normal_index)+0];

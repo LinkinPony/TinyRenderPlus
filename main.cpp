@@ -23,6 +23,7 @@ int main(int argc,char * argv[]) {
   if(argc == 1){
     editor->run();
   }
+  editor->scene_->writeTGAImage("result.tga");
   return 0;
   //auto start = std::chrono::steady_clock::now();
   //int n = 20;

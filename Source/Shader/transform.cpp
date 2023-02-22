@@ -53,7 +53,10 @@ Eigen::Matrix4f Transform::viewportTrans(int width, int height) {
   Eigen::Matrix4f m_viewport;
   float w = width;
   float h = height;
-  m_viewport << w / 2, 0, 0, (w - 1) / 2, 0, h / 2, 0, (h - 1) / 2, 0, 0, 1, 0,
+  m_viewport << 
+      w / 2, 0, 0, (w - 1) / 2, 
+      0, h / 2, 0, (h - 1) / 2, 
+      0, 0, 1, 0,
       0, 0, 0, 1;
   return m_viewport;
 }
@@ -83,7 +86,7 @@ Eigen::Matrix4f Transform::projectionTrans(float eye_fov, float aspect_ratio,
   m_projection(1, 1) = n / t;
   m_projection(2, 2) = (n + f) / (n - f);
   m_projection(2, 3) = (2 * n * f) / (n - f);
-  m_projection(3, 2) = -1;
+  m_projection(3, 2) = 1;
   return m_projection;
 }
 // Eigen::Matrix4f Transform::projectionTrans(float eye_fov, float aspect_ratio,

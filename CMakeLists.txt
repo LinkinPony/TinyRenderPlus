@@ -10,6 +10,8 @@ set(CMAKE_CXX_FLAGS -O2)
 find_package(glfw3 CONFIG REQUIRED)
 find_package(unofficial-angle REQUIRED CONFIG)
 find_package(benchmark REQUIRED CONFIG)
+find_package(glad CONFIG REQUIRED)
+find_package(imgui CONFIG REQUIRED)
 #add_subdirectory(UnitTest)
 aux_source_directory(Source SOURCE_SRC)
 aux_source_directory(GUI GUI_SRC)
@@ -34,5 +36,5 @@ add_executable(TinyRenderPlus
         main.cpp
         Source/Render/render.h Source/Shader/shader.h Source/Shader/shader_data.h Source/Shader/bling_phong_shader.cpp Source/Shader/bling_phong_shader.h Source/Shader/shader.cpp Source/Shader/transform.cpp Source/Shader/transform.h "Source/camera.cpp" "Source/camera.h")
 
-target_link_libraries(TinyRenderPlus glfw unofficial::angle::libGLESv2 benchmark::benchmark)
+target_link_libraries(TinyRenderPlus glad::glad glfw imgui::imgui unofficial::angle::libGLESv2 benchmark::benchmark)
 #set_target_properties(TinyRenderPlus PROPERTIES LINKER_LANGUAGE CXX)

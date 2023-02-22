@@ -7,9 +7,10 @@ inline float radians(float degree) { return degree * PI / 2.0f; }
 void Camera::updateCameraStatus() {
   // camera_direction_ = glm::normalize(camera_direction_);
   camera_target_ = camera_position_ + camera_direction_;
-  camera_right_direction_ = up_direction_.cross(camera_direction_).normalized();
+  camera_right_direction_ =
+      (up_direction_.cross(camera_direction_)).normalized();
   camera_up_direction_ =
-      camera_direction_.cross(camera_right_direction_).normalized();
+      (camera_direction_.cross(camera_right_direction_)).normalized();
 }
 
 Camera::Camera(const Eigen::Vector3f& camera_position,

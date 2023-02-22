@@ -7,7 +7,7 @@
 #include <eigen3/Eigen/Eigen>
 class Triangle {
  public:
-  Eigen::Vector3f v_[3];//vertex, (x,y,z)
+  Eigen::Vector4f v_[3];//vertex, (x,y,z,w = 1)
   Eigen::Vector3f color_[3];
   Eigen::Vector3f normal_[3];
   Eigen::Vector2f texture_coords_[3];
