@@ -129,6 +129,12 @@ void Scene::drawAllFragment() {
     drawSingleFragment(it);
   }
 }
+std::string Scene::getMatrixInfo() { 
+  Eigen::IOFormat CleanFmt(4, 0, ", ", "\n", "[", "]");
+  std::stringstream result;
+  result << shader_uniform_data_.camera_MVP.format(CleanFmt);
+  return result.str();
+}
 void Scene::nextFrame() {
   // TODO: lots of work to do
   applySceneConfig();
@@ -139,12 +145,6 @@ void Scene::nextFrame() {
   processAllTriangle();
   processAllFragment();
   drawAllFragment();
-  // render_buffer_.flip_vertically();
-  // for (int i = 0; i < get_width(); i++) {
-  //   for (int j = 0; j < get_height(); j++) {
-  //     render_buffer_.set(i, j, TGAColor(255, 255, 255, 255));
-  //   }
-  // }
 }
 int Scene::get_height() { return config_->height; }
 int Scene::get_width() { return config_->width; }
@@ -186,9 +186,6 @@ void Scene::generateMVPMatrix() {
   auto m_projection = Transform::projectionTrans(
       config_->fov, config_->aspect_ratio, config_->zNear, config_->zFar);
   auto matrix = m_projection * m_view * m_model;
-  // TODO: delete this output
-  Eigen::IOFormat CleanFmt(4, 0, ", ", "\n", "[", "]");
-  std::cout << matrix.format(CleanFmt) << "\n------------------\n";
   set_camera_mvp_matrix(matrix);
 }
 
@@ -205,9 +202,13 @@ std::string SceneConfig::getInfoString() {
   res_stream << "aspect_ratio = " << aspect_ratio << std::endl;
   res_stream << "zNear = " << zNear << std::endl;
   res_stream << "zFar = " << zFar << std::endl;
-  res_stream << "camera_position : " << camera_->getref_camera_position()
+  const auto cam_pos = camera_->getref_camera_position();
+  const auto cam_dir = camera_->getref_camera_direction();
+  res_stream << "camera_position : [" << cam_pos.x() << "," << cam_pos.y()
+             << "," << cam_pos.z() << "]"
              << std::endl;
-  res_stream << "camera_direction : " << camera_->getref_camera_direction()
+  res_stream << "camera_direction : [" << cam_dir.x() << "," << cam_dir.y()
+             << "," << cam_dir.z() << "]"
              << std::endl;
   res_stream << " ---- ------ ----\n";
   return res_stream.str();

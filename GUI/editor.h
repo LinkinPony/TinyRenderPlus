@@ -11,6 +11,7 @@ class Editor : public std::enable_shared_from_this<Editor> {
  public:
   std::shared_ptr<Scene>scene_;
   GLuint raw_image_texture_;
+  bool capture_cursor_flag_ = false;
  public:
   
   void loadScene(std::shared_ptr<Scene> scene);
@@ -20,7 +21,7 @@ class Editor : public std::enable_shared_from_this<Editor> {
   GLuint render_result;
    int screen_width_ = 1280;
   int screen_height_ = 720;
-   bool capture_cursor_flag_ = false;
+   
 
  private:
    std::shared_ptr<SceneConfig> config_;

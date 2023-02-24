@@ -72,6 +72,8 @@ class Scene {
   void processAllFragment();
   void drawSingleFragment(ShaderVaryingData &data);
   void drawAllFragment();
+
+  
   //  RenderInterface render;
  public:
   Scene(int width, int height, float fov, std::unique_ptr<Shader> shader)
@@ -88,7 +90,7 @@ class Scene {
   void applySceneConfig();  // call this before each frame rendering
   void generateMVPMatrix();
   void writeTGAImage(const std::string &filename);
-
+  std::string getMatrixInfo();
  public:
   int get_width();
   int get_height();

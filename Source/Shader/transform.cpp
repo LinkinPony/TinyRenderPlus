@@ -87,20 +87,3 @@ Eigen::Matrix4f Transform::projectionTrans(float eye_fov, float aspect_ratio,
   m_projection(3, 2) = 1;
   return m_projection;
 }
-// Eigen::Matrix4f Transform::projectionTrans(float eye_fov, float aspect_ratio,
-//                                            float zNear, float zFar) {
-//   Eigen::Matrix4f m_projection = Eigen::Matrix4f::Identity();
-//   // Create the projection matrix for the given parameters.
-//   // Then return it.
-//   float halfV = eye_fov * PI / 180 / 2;
-//   float t =
-//       -tan(halfV) * zNear;  // add negative sign to avoid upside-down problem
-//   float b = -t;
-//   float r = aspect_ratio * t;
-//   float l = -r;
-//   float n = zNear, f = zFar;
-//   auto m_persp2ortho = Transform::perspTrans(f, n);
-//   auto m_ortho = Transform::orthoTrans(l, r, b, t, f, n);
-//   m_projection = m_ortho * m_persp2ortho;
-//   return m_projection;
-// }

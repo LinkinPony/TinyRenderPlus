@@ -107,6 +107,8 @@ int Editor::run() {
     float cur_time = glfwGetTime();
     float delta_time = cur_time - last_time;
     camera->set_move_speed(delta_time * 0.01);
+    camera->moveByEulerianAngles(config_->pitch,config_->yaw);
+    std::cout << config_->yaw << " " << config_->pitch << std::endl;
     if (capture_cursor_flag_ == true) {
       glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
       glfwSetCursorPosCallback(window, glmouseCallbackWrapper);
@@ -158,6 +160,10 @@ void Editor::buildRenderResultWidget() {
 
 void Editor::buildConfigWidget() {
   ImGui::Begin("Config");
+  ImGui::Text((std::string("Capture cursor: ") +
+               (editor->capture_cursor_flag_ ? "YES" : "NO")).c_str());
+  //ImGui::Text(config_->getInfoString().c_str());
+  ImGui::Text(scene_->getMatrixInfo().c_str());
   bindVector3fToInputBox(
       scene_->get_config()->camera_->getref_camera_direction(),
       "camera direction", -50, 50);
@@ -166,6 +172,7 @@ void Editor::buildConfigWidget() {
       "camera position", -50, 50);
   bindVector3fToInputBox(scene_->get_config()->camera_->getref_up_direction(),
                          "up direction", -1, 1);
+  
   ImGui::End();
 }
 
@@ -176,7 +183,7 @@ void Editor::mouseCallback(double xpos, double ypos) {
   float yoffset = last_y - ypos;
   last_x = xpos;
   last_y = ypos;
-  float sensitivity = 0.05;
+  float sensitivity = 0.01;
   xoffset *= sensitivity;
   yoffset *= sensitivity;
   auto& yaw = config_->yaw;
@@ -222,6 +229,6 @@ void processInput(GLFWwindow* window, std::shared_ptr<Camera> camera) {
     camera->moveByDirection(Camera::MoveDirection::kDown);
   }
   if (glfwGetKey(window, GLFW_KEY_LEFT_ALT) == GLFW_PRESS) {
-      
+    editor->capture_cursor_flag_ = !editor->capture_cursor_flag_;
   }
 }
