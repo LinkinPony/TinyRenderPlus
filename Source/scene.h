@@ -55,6 +55,7 @@ class Scene {
   // TODO: vector seems a little bit slow, need profiling
   std::vector<float> z_buffer_;
   std::vector<ShaderVaryingData> fragment_vary_data_;
+  std::vector<ShaderVaryingData> culled_vertex_data_;
   // todo: use point. avoid copy
   ShaderUniformData shader_uniform_data_;
   std::vector<std::shared_ptr<Object>> objects_;

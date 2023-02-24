@@ -12,6 +12,7 @@ void Scene::initVertexVaryingData() {
   // TODO: change function name
   object_vertex_vary_data_.clear();
   fragment_vary_data_.clear();
+  culled_vertex_data_.clear();
   for (const auto &objs : objects_) {
     std::vector<ShaderVaryingData> temp_vec;
     temp_vec.reserve((std::size_t)objs->triangles_.size());
@@ -33,12 +34,12 @@ void Scene::processSingleVertex(ShaderVaryingData &data) {
     if (absw < keps) {
       skip_flag = true;
     }
-    if (fabs(data.vertex[i].x()) > absw || fabs(data.vertex[i].y()) > absw ) {
+    if (fabs(data.vertex[i].x()) > absw || fabs(data.vertex[i].y()) > absw) {
       out_of_range_cnt++;
     }
   }
   if (out_of_range_cnt == 3) skip_flag = true;
-   data.skip |= skip_flag;
+  data.skip |= skip_flag;
   if (!data.skip) {
     for (int i = 0; i < 3; i++) {
       data.vertex[i] = shader_uniform_data_.m_viewport * data.vertex[i];
@@ -50,6 +51,10 @@ void Scene::processSingleVertex(ShaderVaryingData &data) {
       data.vertex[i].z() /= w;
     }
   }
+  if (!data.skip) {
+    // TODO: there are too many stupid copy, change them by move
+    culled_vertex_data_.push_back(data);
+  }
 }
 
 void Scene::processAllVertex() {
@@ -60,13 +65,6 @@ void Scene::processAllVertex() {
   }
 }
 void Scene::processSingleTriange(ShaderVaryingData &data) {
-  // In previous version, we calculate all stuff under viewport translation.
-  // This will cause many mystery problem.
-  // Now we calculate triangles under MVP translation,
-  // and pass a screen coord parameter to drawer.
-  if (data.skip) {
-    return;
-  }
   const auto &vertex = data.vertex;  // in MVP translation.
   int width = get_width();
   int height = get_height();
@@ -92,10 +90,8 @@ void Scene::processSingleTriange(ShaderVaryingData &data) {
   }
 }
 void Scene::processAllTriangle() {
-  for (auto &vec : object_vertex_vary_data_) {
-    for (auto &it : vec) {
-      processSingleTriange(it);
-    }
+  for (auto & it : culled_vertex_data_) {
+    processSingleTriange(it);
   }
 }
 void Scene::processSingleFragment(ShaderVaryingData &data) {
@@ -129,7 +125,7 @@ void Scene::drawAllFragment() {
     drawSingleFragment(it);
   }
 }
-std::string Scene::getMatrixInfo() { 
+std::string Scene::getMatrixInfo() {
   Eigen::IOFormat CleanFmt(4, 0, ", ", "\n", "[", "]");
   std::stringstream result;
   result << shader_uniform_data_.camera_MVP.format(CleanFmt);
@@ -168,7 +164,7 @@ void Scene::addLight(Light &light) {
 }
 void Scene::applySceneConfig() {
   std::shared_ptr<Camera> camera = config_->camera_;
-  //camera->moveByEulerianAngles(config_->pitch, config_->yaw);
+  // camera->moveByEulerianAngles(config_->pitch, config_->yaw);
   generateMVPMatrix();
   shader_uniform_data_.m_viewport =
       Transform::viewportTrans(config_->width, config_->height);
@@ -205,11 +201,9 @@ std::string SceneConfig::getInfoString() {
   const auto cam_pos = camera_->getref_camera_position();
   const auto cam_dir = camera_->getref_camera_direction();
   res_stream << "camera_position : [" << cam_pos.x() << "," << cam_pos.y()
-             << "," << cam_pos.z() << "]"
-             << std::endl;
+             << "," << cam_pos.z() << "]" << std::endl;
   res_stream << "camera_direction : [" << cam_dir.x() << "," << cam_dir.y()
-             << "," << cam_dir.z() << "]"
-             << std::endl;
+             << "," << cam_dir.z() << "]" << std::endl;
   res_stream << " ---- ------ ----\n";
   return res_stream.str();
 }
