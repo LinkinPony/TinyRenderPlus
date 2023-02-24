@@ -106,7 +106,7 @@ int Editor::run() {
   while (!glfwWindowShouldClose(window)) {
     float cur_time = glfwGetTime();
     float delta_time = cur_time - last_time;
-    camera->set_move_speed(delta_time * 0.05);
+    camera->set_move_speed(delta_time * 0.01);
     if (capture_cursor_flag_ == true) {
       glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
       glfwSetCursorPosCallback(window, glmouseCallbackWrapper);

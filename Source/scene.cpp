@@ -26,15 +26,19 @@ void Scene::processSingleVertex(ShaderVaryingData &data) {
   shader_->vertexShader(data, shader_uniform_data_);
   // data.debugPrint();
   //  cut off
-  bool skip_flag = true;
+  bool skip_flag = false;
+  int out_of_range_cnt = 0;
   for (int i = 0; i < 3; i++) {
     float absw = fabs(data.vertex[i].w());
-    if (fabs(data.vertex[i].x()) < absw && fabs(data.vertex[i].y()) < absw &&
-        fabs(data.vertex[i].z()) < absw) {
-      skip_flag = false;
+    if (absw < keps) {
+      skip_flag = true;
+    }
+    if (fabs(data.vertex[i].x()) > absw || fabs(data.vertex[i].y()) > absw ) {
+      out_of_range_cnt++;
     }
   }
-  // data.skip |= skip_flag;
+  if (out_of_range_cnt == 3) skip_flag = true;
+   data.skip |= skip_flag;
   if (!data.skip) {
     for (int i = 0; i < 3; i++) {
       data.vertex[i] = shader_uniform_data_.m_viewport * data.vertex[i];

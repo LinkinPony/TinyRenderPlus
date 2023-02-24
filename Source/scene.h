@@ -45,7 +45,7 @@ struct SceneConfig {
 class Scene {
  private:
   const float INF = 1e18;
-
+  const float keps = 1e-6; 
  private:
   std::shared_ptr<SceneConfig> config_;
   std::shared_ptr<TGAImage> render_buffer_;

@@ -12,6 +12,7 @@ class Editor : public std::enable_shared_from_this<Editor> {
   std::shared_ptr<Scene>scene_;
   GLuint raw_image_texture_;
  public:
+  
   void loadScene(std::shared_ptr<Scene> scene);
   int run();
 
