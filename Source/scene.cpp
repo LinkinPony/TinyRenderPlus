@@ -110,6 +110,7 @@ void Scene::drawSingleFragment(ShaderVaryingData &data) {
   int x = data.coord_x;
   int y = data.coord_y;
   int idx = x + y * get_width();
+  //TODO: move z-buffer test earlier
   if (z_buffer_[idx] > data.depth) {
     z_buffer_[idx] = data.depth;
     auto &color = data.output_color;

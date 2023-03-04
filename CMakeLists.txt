@@ -34,7 +34,7 @@ add_executable(TinyRenderPlus
         ${IMGUI_SRC}
         ${TINY_RENDER_SRC}
         main.cpp
-        Source/Render/render.h Source/Shader/shader.h Source/Shader/shader_data.h Source/Shader/bling_phong_shader.cpp Source/Shader/bling_phong_shader.h Source/Shader/shader.cpp Source/Shader/transform.cpp Source/Shader/transform.h "Source/camera.cpp" "Source/camera.h")
+        Source/Render/render.h Source/Shader/shader.h Source/Shader/shader_data.h Source/Shader/bling_phong_shader.cpp Source/Shader/bling_phong_shader.h Source/Shader/shader.cpp Source/Shader/transform.cpp Source/Shader/transform.h "Source/camera.cpp" "Source/camera.h" "Source/geometry.cpp" "Source/model.h" "Source/model.cpp" "Source/mesh.h" "Source/mesh.cpp" "Source/Render/rasterizer.h" "Source/Render/rasterizer.cpp" "Source/scene_config.h")
 
 target_link_libraries(TinyRenderPlus glad::glad glfw imgui::imgui unofficial::angle::libGLESv2 benchmark::benchmark)
 #set_target_properties(TinyRenderPlus PROPERTIES LINKER_LANGUAGE CXX)
