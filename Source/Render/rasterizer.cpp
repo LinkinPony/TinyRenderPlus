@@ -10,10 +10,26 @@ std::shared_ptr<TGAImage> Rasterizer::getRenderResult() {
   return std::shared_ptr<TGAImage>();
 }
 
-void Rasterizer::drawMesh(const Mesh &mesh) {}
+void Rasterizer::drawMesh(const Mesh &mesh) {
+  auto &vertices = mesh.get_vertices();
+  auto &indices = mesh.get_indices();
+  auto &textures = mesh.get_textures();
+  //assemble triangle
+  for (size_t i = 0; i < indices.size(); i += 3) {
+    Triangle tri(vertices[i], vertices[i + 1], vertices[i + 2]);
+    vertex_vary_data_.emplace_back(tri);
+  }
+  processAllVertex();
+  processAllTriangle();
+  processAllFragment();
+  drawAllFragment();
+}
 
 void Rasterizer::applySceneConfig(std::shared_ptr<SceneConfig> config,
-                                  std::shared_ptr<Shader> shader) {}
+                                  std::shared_ptr<Shader> shader) {
+  auto &camera = config->camera_;
+
+}
 
 void Rasterizer::cleanUpMesh() {
   fragment_vary_data_.clear();

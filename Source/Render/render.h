@@ -1,7 +1,3 @@
-//
-// Created by linkinpony on 23-1-14.
-//
-
 #ifndef TINYRENDERPLUS_SOURCE_RENDER_RENDER_H_
 #define TINYRENDERPLUS_SOURCE_RENDER_RENDER_H_
 //interface of render. could be rasterizer or ray tracing or something interesting.
@@ -21,4 +17,4 @@ class Render{
   virtual void applySceneConfig(std::shared_ptr<SceneConfig> config,
                                 std::shared_ptr<Shader> shader) = 0;
 };
-#endif TINYRENDERPLUS_SOURCE_RENDER_RENDER_H_
+#endif //TINYRENDERPLUS_SOURCE_RENDER_RENDER_H_

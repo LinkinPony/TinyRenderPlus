@@ -49,4 +49,5 @@ class Rasterizer : public Render {
   void drawAllFragment();
 };
 
-#endif TINYRENDERPLUS_RENDER_RENDER_RASTERIZER_H_
+#endif //TINYRENDERPLUS_RENDER_RENDER_RASTERIZER_H_
+

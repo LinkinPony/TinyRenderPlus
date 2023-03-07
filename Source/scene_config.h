@@ -28,4 +28,4 @@ class SceneConfig {
 
   [[maybe_unused]] void debugPrint();
 };
-#endif TINYRENDERPLUS_RENDER_SCENE_CONFIG_H_
+#endif //TINYRENDERPLUS_RENDER_SCENE_CONFIG_H_

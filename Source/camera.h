@@ -61,4 +61,4 @@ class Camera {
   float get_move_speed() { return move_speed_; }
 };
 
-#endif TINYRENDERPLUS_RENDER_CAMERA_H_
+#endif //TINYRENDERPLUS_RENDER_CAMERA_H_

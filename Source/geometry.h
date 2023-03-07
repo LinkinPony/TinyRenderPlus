@@ -19,4 +19,4 @@ class Geometry {
       const std::vector<Eigen::Vector4f>& plane);
   ;
 };
-#endif TINYRENDERPLUS_RENDER_GEOMETRY_H_
+#endif //TINYRENDERPLUS_RENDER_GEOMETRY_H_
