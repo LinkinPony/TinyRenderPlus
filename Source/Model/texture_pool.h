@@ -13,6 +13,7 @@ class TexturePool {
   // check if Texture has been loaded, if not, load it and
   // return pointer. otherwise just return pointer
    std::shared_ptr<TGAImage> loadTextureByPath(const std::string& path);
+  TexturePool() = default;
   ~TexturePool() = default;
    TexturePool(const TexturePool&) = delete;
   TexturePool(TexturePool&&) = delete;

@@ -10,20 +10,25 @@
 #include <object.h>
 #include <shader.h>
 #include <bling_phong_shader.h>
-
+#include <render.h>
+#include <rasterizer.h>
 #include <benchmark/benchmark.h>
 int main(int argc,char * argv[]) {
-  std::unique_ptr<Shader> shader(new BlingPhongShader());
-  auto sc = std::make_unique<Scene>(500,500,0.45,std::move(shader));
-  sc->addObject(std::make_unique<Object>("E:/Github/temp/Model/diablo/diablo3_pose"));
+  std::shared_ptr<Shader> shader(new BlingPhongShader());
+  std::shared_ptr<Render> render(new Rasterizer());
+  auto sc = std::make_shared<Scene>(500,500,0.45f,shader,render);
+  auto resource_pool = std::make_shared<TexturePool>();
+  auto model_one = Model("Resource/Model/nanosuit/nanosuit.obj",resource_pool,Transform::modelTrans(0,1));
+  sc->addModel(model_one);
+  //sc->addObject(std::make_unique<Object>("E:/Github/temp/Model/diablo/diablo3_pose"));
 //    sc->nextFrame();
   auto editor = std::make_shared<Editor>();
-  editor->loadScene(std::move(sc));
+  editor->loadScene(sc);
   editor->scene_->nextFrame();
   if(argc == 1){
     editor->run();
   }
-  editor->scene_->writeTGAImage("result.tga");
+  //editor->scene_->writeTGAImage("result.tga");
   return 0;
   //auto start = std::chrono::steady_clock::now();
   //int n = 20;

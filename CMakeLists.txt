@@ -17,6 +17,8 @@ find_package(assimp CONFIG REQUIRED)
 #add_subdirectory(UnitTest)
 aux_source_directory(Source SOURCE_SRC)
 aux_source_directory(Source/Model SOURCE_MODEL_SRC)
+aux_source_directory(Source/Render SOURCE_RENDER_SRC)
+aux_source_directory(Source/Shader SOURCE_SHADER_SRC)
 aux_source_directory(GUI GUI_SRC)
 aux_source_directory(ThirdPartyLib/imgui/ IMGUI_SRC)
 aux_source_directory(ThirdPartyLib/tinyrender TINY_RENDER_SRC)
@@ -35,6 +37,8 @@ include_directories(
 add_executable(TinyRenderPlus
         ${SOURCE_SRC}
         ${SOURCE_MODEL_SRC}
+        ${SOURCE_SHADER_SRC}
+        ${SOURCE_RENDER_SRC}
         ${GUI_SRC}
         ${IMGUI_SRC}
         ${TINY_RENDER_SRC}

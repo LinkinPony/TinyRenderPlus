@@ -1,5 +1,6 @@
 #ifndef TINYRENDERPLUS_RENDER_SCENE_CONFIG_H_
 #define TINYRENDERPLUS_RENDER_SCENE_CONFIG_H_
+class Camera;
 class SceneConfig {
  public:
   // IMPORTANT: set default value

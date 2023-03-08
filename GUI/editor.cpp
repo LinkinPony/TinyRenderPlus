@@ -4,10 +4,10 @@
 
 #include <editor.h>
 #include <transform.h>
-#ifndef STB_IMAGE_IMPLEMENTATION
-#define STB_IMAGE_IMPLEMENTATION
-#include "stb_image.h"
-#endif
+//#ifndef STB_IMAGE_IMPLEMENTATION
+//#define STB_IMAGE_IMPLEMENTATION
+//#include "stb_image.h"
+//#endif
 #include <GLFW/glfw3.h>
 #include <glad/glad.h>
 

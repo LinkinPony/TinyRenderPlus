@@ -90,7 +90,7 @@ void Scene::processSingleTriange(ShaderVaryingData &data) {
   }
 }
 void Scene::processAllTriangle() {
-  for (auto & it : culled_vertex_data_) {
+  for (auto &it : culled_vertex_data_) {
     processSingleTriange(it);
   }
 }
@@ -110,7 +110,7 @@ void Scene::drawSingleFragment(ShaderVaryingData &data) {
   int x = data.coord_x;
   int y = data.coord_y;
   int idx = x + y * get_width();
-  //TODO: move z-buffer test earlier
+  // TODO: move z-buffer test earlier
   if (z_buffer_[idx] > data.depth) {
     z_buffer_[idx] = data.depth;
     auto &color = data.output_color;
@@ -133,16 +133,22 @@ std::string Scene::getMatrixInfo() {
   return result.str();
 }
 void Scene::nextFrame() {
+  render_->applySceneConfig(config_, shader_);
+  render_->newFrame();
+  for (auto &it_model : model_) {
+    // do something like configue shader
+    it_model.draw(render_);
+  }
   // TODO: lots of work to do
-  applySceneConfig();
-  std::fill(z_buffer_.begin(), z_buffer_.end(), INF);
-  render_buffer_->clear();
-  initVertexVaryingData();
-  shader_->setUniformData(shader_uniform_data_);
-  processAllVertex();
-  processAllTriangle();
-  processAllFragment();
-  drawAllFragment();
+  // applySceneConfig();
+  // std::fill(z_buffer_.begin(), z_buffer_.end(), INF);
+  // render_buffer_->clear();
+  // initVertexVaryingData();
+  // shader_->setUniformData(shader_uniform_data_);
+  // processAllVertex();
+  // processAllTriangle();
+  // processAllFragment();
+  // drawAllFragment();
 }
 int Scene::get_height() { return config_->height; }
 int Scene::get_width() { return config_->width; }

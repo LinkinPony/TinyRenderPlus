@@ -1,10 +1,5 @@
 #include "model.h"
 
-#include <ThirdPartyLib/stb/stb_image.h>
-// #ifndef STB_IMAGE_IMPLEMENTATION
-// #define STB_IMAGE_IMPLEMENTATION
-//
-// #endif
 
 std::vector<Texture> Model::loadMaterialTexture(aiMaterial* material,
                                                 aiTextureType ai_type,

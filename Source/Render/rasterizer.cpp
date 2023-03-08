@@ -1,9 +1,9 @@
 #include <rasterizer.h>
 
 void Rasterizer::newFrame() {
-  // TODO: change function name
-  render_buffer_->clear();
-  z_buffer_.clear();
+  // TODO: check if there's memory leak
+  render_buffer_ = std::make_shared<TGAImage>(width_, height_, TGAImage::RGB);
+  z_buffer_ = std::vector<float>(width_ * height_, INF);
 }
 
 std::shared_ptr<TGAImage> Rasterizer::getRenderResult() {
@@ -16,7 +16,7 @@ void Rasterizer::drawMesh(const Mesh &mesh) {
   auto &textures = mesh.get_textures();
   shader_->getref_shader_uniform_data().m_model = mesh.get_m_model();
   shader_->getref_shader_uniform_data().generateVertexMatrix();
-  //assemble triangle
+  // assemble triangle
   for (size_t i = 0; i < indices.size(); i += 3) {
     Triangle tri(vertices[i], vertices[i + 1], vertices[i + 2]);
     vertex_vary_data_.emplace_back(tri);
@@ -29,7 +29,9 @@ void Rasterizer::drawMesh(const Mesh &mesh) {
 
 void Rasterizer::applySceneConfig(std::shared_ptr<SceneConfig> config,
                                   std::shared_ptr<Shader> shader) {
-  //model shader
+  // model shader
+  width_ = config->width;
+  height_ = config->height;
   auto &camera = config->camera_;
   ShaderUniformData model_uniform;
   model_uniform.m_view = camera->getLookAtMat();
@@ -84,8 +86,8 @@ void Rasterizer::processAllVertex() {
 }
 void Rasterizer::processSingleTriange(ShaderVaryingData &data) {
   const auto &vertex = data.vertex;  // in MVP translation.
-  int width = config_->width;
-  int height = config_->height;
+  int width = width_;
+  int height = height_;
   int lx =
       std::max(std::min({vertex[0].x(), vertex[1].x(), vertex[2].x()}), 0.f);
   int rx = std::min(std::max({vertex[0].x(), vertex[1].x(), vertex[2].x()}),
@@ -127,7 +129,7 @@ void Rasterizer::drawSingleFragment(ShaderVaryingData &data) {
   }
   int x = data.coord_x;
   int y = data.coord_y;
-  int idx = x + y * config_->width;
+  int idx = x + y * width_;
   // TODO: move z-buffer test earlier
   if (z_buffer_[idx] > data.depth) {
     z_buffer_[idx] = data.depth;

@@ -5,7 +5,6 @@
 
 #include <memory>
 #include <camera.h>
-#include <render.h>
 #include <shader.h>
 #include <shader_data.h>
 #include <tgaimage.h>
@@ -14,14 +13,18 @@
 #include <iostream>
 class Rasterizer : public Render {
  public:
-  void newFrame();
-  std::shared_ptr<TGAImage> getRenderResult();
-  void drawMesh(const Mesh& mesh);
-  void applySceneConfig(std::shared_ptr<SceneConfig> config,std::shared_ptr<Shader> shader);
+  void newFrame() override;
+  std::shared_ptr<TGAImage> getRenderResult() override;
+  void drawMesh(const Mesh& mesh) override;
+  void applySceneConfig(std::shared_ptr<SceneConfig> config,std::shared_ptr<Shader> shader) override;
+  Rasterizer() = default;
+  ~Rasterizer() override = default;
   private:
  private:
   const float INF = 1e18;
   const float keps = 1e-6;
+  int width_;
+  int height_;
 
  private:
   std::shared_ptr<TGAImage> render_buffer_;
