@@ -14,6 +14,8 @@ void Rasterizer::drawMesh(const Mesh &mesh) {
   auto &vertices = mesh.get_vertices();
   auto &indices = mesh.get_indices();
   auto &textures = mesh.get_textures();
+  shader_->getref_shader_uniform_data().m_model = mesh.get_m_model();
+  shader_->getref_shader_uniform_data().generateVertexMatrix();
   //assemble triangle
   for (size_t i = 0; i < indices.size(); i += 3) {
     Triangle tri(vertices[i], vertices[i + 1], vertices[i + 2]);
@@ -27,8 +29,12 @@ void Rasterizer::drawMesh(const Mesh &mesh) {
 
 void Rasterizer::applySceneConfig(std::shared_ptr<SceneConfig> config,
                                   std::shared_ptr<Shader> shader) {
+  //model shader
   auto &camera = config->camera_;
-
+  ShaderUniformData model_uniform;
+  model_uniform.m_view = camera->getLookAtMat();
+  model_uniform.m_projection = Transform::projectionTrans(
+      config->fov, config->aspect_ratio, config->zNear, config->zFar);
 }
 
 void Rasterizer::cleanUpMesh() {
@@ -38,7 +44,7 @@ void Rasterizer::cleanUpMesh() {
 }
 
 void Rasterizer::processSingleVertex(ShaderVaryingData &data) {
-  shader_->vertexShader(data, shader_uniform_data_);
+  shader_->vertexShader(data);
   // data.debugPrint();
   //  cut off
   bool skip_flag = false;
@@ -107,7 +113,7 @@ void Rasterizer::processAllTriangle() {
   }
 }
 void Rasterizer::processSingleFragment(ShaderVaryingData &data) {
-  shader_->fragmentShader(data, shader_uniform_data_);
+  shader_->fragmentShader(data);
 }
 void Rasterizer::processAllFragment() {
   for (auto &it : fragment_vary_data_) {

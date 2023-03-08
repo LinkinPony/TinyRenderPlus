@@ -24,7 +24,7 @@ void Scene::initVertexVaryingData() {
 }
 
 void Scene::processSingleVertex(ShaderVaryingData &data) {
-  shader_->vertexShader(data, shader_uniform_data_);
+  shader_->vertexShader(data);
   // data.debugPrint();
   //  cut off
   bool skip_flag = false;
@@ -95,7 +95,7 @@ void Scene::processAllTriangle() {
   }
 }
 void Scene::processSingleFragment(ShaderVaryingData &data) {
-  shader_->fragmentShader(data, shader_uniform_data_);
+  shader_->fragmentShader(data);
 }
 void Scene::processAllFragment() {
   for (auto &it : fragment_vary_data_) {
@@ -138,6 +138,7 @@ void Scene::nextFrame() {
   std::fill(z_buffer_.begin(), z_buffer_.end(), INF);
   render_buffer_->clear();
   initVertexVaryingData();
+  shader_->setUniformData(shader_uniform_data_);
   processAllVertex();
   processAllTriangle();
   processAllFragment();

@@ -1,9 +1,10 @@
 #include "model.h"
-#include<ThirdPartyLib/stb/stb_image.h>
-//#ifndef STB_IMAGE_IMPLEMENTATION
-//#define STB_IMAGE_IMPLEMENTATION
+
+#include <ThirdPartyLib/stb/stb_image.h>
+// #ifndef STB_IMAGE_IMPLEMENTATION
+// #define STB_IMAGE_IMPLEMENTATION
 //
-//#endif
+// #endif
 
 std::vector<Texture> Model::loadMaterialTexture(aiMaterial* material,
                                                 aiTextureType ai_type,
@@ -13,25 +14,44 @@ std::vector<Texture> Model::loadMaterialTexture(aiMaterial* material,
     aiString ai_path;
     material->GetTexture(ai_type, i, &ai_path);
     std::string path(ai_path.C_Str());
-    int id = loadTextureFromFile(path.c_str(), directory_);
-    textures.emplace_back(id, path, type);
+    auto texture_ptr = loadTextureFromFile(path.c_str(), directory_);
+    textures.emplace_back(texture_ptr, path, type);
   }
   return textures;
 }
 
-int Model::loadTextureFromFile(const std::string& path,
-                               const std::string& directory) {
-  // TODO: finish it
-  return 0;
+std::shared_ptr<TGAImage> Model::loadTextureFromFile(
+    const std::string& path, const std::string& directory) {
+  if (texture_pool_ == nullptr) {
+    std::cerr << "[ERROR] : texture pool failed to load." << std::endl;
+    return nullptr;
+  }
+  // TODO: use custom file system
+  return texture_pool_->loadTextureByPath(directory + "/" + path);
 }
 
-Model::Model(const std::string& filepath) { loadModel(filepath); }
+Model::Model(const std::string& filepath,
+             std::shared_ptr<TexturePool> texture_pool,
+             const Eigen::Matrix4f& m_model)
+    : texture_pool_(texture_pool), m_model_(m_model) {
+  loadModel(filepath);
+}
 
-Model::Model(const std::vector<Mesh>& mesh) : mesh_(mesh) {}
+Model::Model(const std::vector<Mesh>& mesh, const Eigen::Matrix4f& m_model)
+    : mesh_(mesh), m_model_(m_model) {
+  texture_pool_ = nullptr;
+}
 
 void Model::draw(std::shared_ptr<Render> render) {
   for (auto& it : mesh_) {
     it.draw(render);
+  }
+}
+
+void Model::set_m_model(const Eigen::Matrix4f& m_model) {
+  m_model_ = m_model;
+  for (auto& it : mesh_) {
+    it.set_m_model(m_model_);
   }
 }
 
@@ -70,15 +90,15 @@ Mesh Model::processMesh(aiMesh* mesh, const aiScene* scene) {
   // process vertex
   for (unsigned int i = 0; i < mesh->mNumVertices; i++) {
     Eigen::Vector3f pos(mesh->mVertices[i].x, mesh->mVertices[i].y,
-                  mesh->mVertices[i].z);
+                        mesh->mVertices[i].z);
     // TODO: change this
     assert(mesh->HasNormals());
     Eigen::Vector3f norm(mesh->mNormals[i].x, mesh->mNormals[i].y,
-                   mesh->mNormals[i].z);
+                         mesh->mNormals[i].z);
     auto tex_coord = Eigen::Vector2f(0.0f, 0.0f);
     if (mesh->mTextureCoords[0]) {
-      tex_coord =
-          Eigen::Vector2f(mesh->mTextureCoords[0][i].x, mesh->mTextureCoords[0][i].y);
+      tex_coord = Eigen::Vector2f(mesh->mTextureCoords[0][i].x,
+                                  mesh->mTextureCoords[0][i].y);
     }
     vertices.emplace_back(Vertex(pos, norm, tex_coord));
   }
@@ -99,5 +119,5 @@ Mesh Model::processMesh(aiMesh* mesh, const aiScene* scene) {
                                              Texture::kSpecular);
     textures.insert(textures.end(), specular_maps.begin(), specular_maps.end());
   }
-  return Mesh(vertices, indices, textures);
+  return Mesh(vertices, indices, textures, m_model_);
 }

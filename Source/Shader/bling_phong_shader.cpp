@@ -11,6 +11,14 @@
 
 #include "eigen3/Eigen/Eigen"
 
+void BlingPhongShader::setUniformData(const ShaderUniformData &data) {
+  uniform_data_ = data;
+}
+
+ShaderUniformData &BlingPhongShader::getref_shader_uniform_data() {
+  return uniform_data_;
+}
+
 TGAColor BlingPhongShader::diffuse(const Eigen::Vector2f &uvf, int obj_id,
                                    const ShaderUniformData &u_data) {
   auto &diffusemap = u_data.u_diffuse[obj_id];
@@ -35,8 +43,7 @@ Eigen::Vector3f Barycentric(const Eigen::Vector4f (&vertex)[3],
   y /= z;
   return {(float)1.0 - x - y, x, y};
 }
-void BlingPhongShader::fragmentShader(ShaderVaryingData &data,
-                                      const ShaderUniformData &u_data) {
+void BlingPhongShader::fragmentShader(ShaderVaryingData &data) {
   int x = data.coord_x;
   int y = data.coord_y;
   auto &vertex = data.vertex;
@@ -56,10 +63,10 @@ void BlingPhongShader::fragmentShader(ShaderVaryingData &data,
     cur_position = cur_position + (vertex[i].head<3>() * bary[i]);
     cur_norm = cur_norm + data.norm[i] * bary[i];
   }
-  data.texture_color = diffuse(diffuse_uv, data.object_id, u_data);
+  data.texture_color = diffuse(diffuse_uv, data.object_id, uniform_data_);
   // diffuse light
   float total_light = 0;
-  for (auto light : u_data.lights) {
+  for (auto light : uniform_data_.lights) {
     float ambient_light = 1;
     Eigen::Vector3f light_direction =
         (light.light_position - cur_position).normalized();
@@ -84,9 +91,8 @@ void BlingPhongShader::fragmentShader(ShaderVaryingData &data,
   //  std::cout << "total_light: " << total_light << " " << data.output_color <<
   //  "\n";
 }
-void BlingPhongShader::vertexShader(ShaderVaryingData &data,
-                                    const ShaderUniformData &u_data) {
+void BlingPhongShader::vertexShader(ShaderVaryingData &data) {
   for (int i = 0; i < 3; i++) {
-    data.vertex[i] = u_data.camera_MVP * data.vertex[i];
+    data.vertex[i] = uniform_data_.camera_MVP * data.vertex[i];
   }
 }

@@ -11,9 +11,11 @@ class Shader {
   virtual ~Shader() = 0;
   
   // fragment shader process each pixel in screen.
-  virtual void fragmentShader(ShaderVaryingData & data,const ShaderUniformData & u_data) = 0;
+  virtual void fragmentShader(ShaderVaryingData & data) = 0;
   // vertex shader apply matrix trans for each point of model.
-  virtual void vertexShader(ShaderVaryingData & data,const ShaderUniformData & u_data) = 0;
+  virtual void vertexShader(ShaderVaryingData & data) = 0;
+  virtual void setUniformData(const ShaderUniformData& data) = 0;
+  virtual ShaderUniformData& getref_shader_uniform_data() = 0;
 };
 
 #endif //TINYRENDERPLUS_RENDER_SHADER_SHADER_H_

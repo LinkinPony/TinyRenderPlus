@@ -24,7 +24,6 @@ class Rasterizer : public Render {
   const float keps = 1e-6;
 
  private:
-  std::shared_ptr<SceneConfig> config_;
   std::shared_ptr<TGAImage> render_buffer_;
   std::shared_ptr<Shader> shader_;
  private:

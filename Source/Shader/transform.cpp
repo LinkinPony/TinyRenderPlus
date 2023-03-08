@@ -1,8 +1,3 @@
-//
-// Created by linkinpony on 23-1-25.
-//
-// refer:
-// https://stackoverflow.com/questions/15073259/converting-from-vector3f-to-matrix4f
 #include "transform.h"
 
 #include <iostream>

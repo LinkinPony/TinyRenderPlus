@@ -9,11 +9,14 @@ class BlingPhongShader : public Shader {
 
  public:
   ~BlingPhongShader() override = default;
-  void fragmentShader(ShaderVaryingData &data, const ShaderUniformData &u_data) override;
-  void vertexShader(ShaderVaryingData &data, const ShaderUniformData &u_data) override;
+  void fragmentShader(ShaderVaryingData &data) override;
+  void vertexShader(ShaderVaryingData &data) override;
+  void setUniformData(const ShaderUniformData &data) override;
+  ShaderUniformData &getref_shader_uniform_data() override;
  private:
   const float eps = 1e-6;
   const float light_threshold = 1e-3;
+  ShaderUniformData uniform_data_;
  private:
   TGAColor diffuse(const Eigen::Vector2f &uvf, int obj_id,const ShaderUniformData &u_data);
 };

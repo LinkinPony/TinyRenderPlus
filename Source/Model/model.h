@@ -3,26 +3,27 @@
 
 #include <assimp/postprocess.h>
 #include <assimp/scene.h>
+#include <mesh.h>
+#include <texture_pool.h>
 
 #include <assimp/Importer.hpp>
+#include <memory>
 #include <string>
 #include <vector>
 
-#include "mesh.h"
-
 class Model {
  public:
-  Model(const std::string& filepath);
-  Model(const std::vector<Mesh>& mesh);
+  Model(const std::string& filepath, std::shared_ptr<TexturePool> texture_pool,
+        const Eigen::Matrix4f& m_model);
+  Model(const std::vector<Mesh>& mesh, const Eigen::Matrix4f& m_model);
   void draw(std::shared_ptr<Render> render);
-
- public:
-  void set_m_model(const Eigen::Matrix4f& mat) { m_model_ = mat;}
+  void set_m_model(const Eigen::Matrix4f& m_model);
 
  private:
   std::vector<Mesh> mesh_;
   std::string directory_;
   Eigen::Matrix4f m_model_;
+  std::shared_ptr<TexturePool> texture_pool_;
 
  private:
   void loadModel(const std::string& path);
@@ -31,7 +32,7 @@ class Model {
   std::vector<Texture> loadMaterialTexture(aiMaterial* material,
                                            aiTextureType ai_type,
                                            Texture::texture_type type);
- int loadTextureFromFile(const std::string& path,
-                             const std::string& directory);
+  std::shared_ptr<TGAImage> loadTextureFromFile(const std::string& path,
+                                                const std::string& directory);
 };
-#endif //TINYRENDERPLUS_RENDER_MODEL_H_
+#endif  // TINYRENDERPLUS_RENDER_MODEL_H_
