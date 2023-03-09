@@ -14,7 +14,9 @@ find_package(benchmark REQUIRED CONFIG)
 find_package(glad CONFIG REQUIRED)
 find_package(imgui CONFIG REQUIRED)
 find_package(assimp CONFIG REQUIRED)
+
 #add_subdirectory(UnitTest)
+
 aux_source_directory(Source SOURCE_SRC)
 aux_source_directory(Source/Model SOURCE_MODEL_SRC)
 aux_source_directory(Source/Render SOURCE_RENDER_SRC)
@@ -33,6 +35,7 @@ include_directories(
         ThirdPartyLib/stb
         ThirdPartyLib/imgui
         ThirdPartyLib/tinyrender
+
 )
 add_executable(TinyRenderPlus
         ${SOURCE_SRC}
@@ -47,3 +50,4 @@ add_executable(TinyRenderPlus
 
 target_link_libraries(TinyRenderPlus glad::glad glfw imgui::imgui unofficial::angle::libGLESv2 benchmark::benchmark assimp::assimp)
 #set_target_properties(TinyRenderPlus PROPERTIES LINKER_LANGUAGE CXX)
+

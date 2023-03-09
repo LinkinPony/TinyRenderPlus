@@ -129,12 +129,13 @@ void Scene::drawAllFragment() {
 std::string Scene::getMatrixInfo() {
   Eigen::IOFormat CleanFmt(4, 0, ", ", "\n", "[", "]");
   std::stringstream result;
-  result << shader_uniform_data_.camera_MVP.format(CleanFmt);
+  result << shader_->getref_shader_uniform_data().m_vertex.format(CleanFmt);
   return result.str();
 }
 void Scene::nextFrame() {
+  assert(render_ != nullptr, "render_ is null.");
   render_->applySceneConfig(config_, shader_);
-  render_->newFrame();
+  render_->newFrame(); 
   for (auto &it_model : model_) {
     // do something like configue shader
     it_model.draw(render_);

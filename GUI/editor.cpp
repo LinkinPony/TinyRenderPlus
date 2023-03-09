@@ -126,7 +126,7 @@ int Editor::run() {
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, scene_->get_width(),
                  scene_->get_height(), 0, GL_BGR, GL_UNSIGNED_BYTE,
                  scene_->get_render_buffer()->data);
-    //
+    ////
     
     ImGui_ImplOpenGL3_NewFrame();
     ImGui_ImplGlfw_NewFrame();
@@ -135,6 +135,7 @@ int Editor::run() {
 
     buildRenderResultWidget();
     buildConfigWidget();
+    //ImGui::ShowDemoWindow();
     ImGui::Render();
     ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
     processInput(window,scene_->get_config()->camera_);

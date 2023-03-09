@@ -15,6 +15,10 @@ struct Vertex {
   Vertex(const Eigen::Vector3f& position_in, const Eigen::Vector3f& normal_in,
          const Eigen::Vector2f& tex_coord_in)
       : position(position_in), normal(normal_in), tex_coord(tex_coord_in) {}
+  void debugPrint() const {
+    Eigen::IOFormat CleanFmt(4, 0, ", ", "\n", "[", "]");
+    std::cout << position.format(CleanFmt) << std::endl;
+  }
 };
 struct Texture {
   enum texture_type { kDiffuse, kSpecular };

@@ -40,6 +40,13 @@ struct ShaderUniformData {
   inline void generateVertexMatrix() {
     m_vertex = m_projection * m_view * m_model;
   }
+  inline void debugPrint() const {
+    Eigen::IOFormat CleanFmt(4, 0, ", ", "\n", "[", "]");
+    std::cout << "m_vertex:\n";
+    std::cout << m_vertex.format(CleanFmt) << std::endl;
+    std::cout << "m_viewport:\n";
+    std::cout << m_viewport.format(CleanFmt) << std::endl;
+  }
 };
 
 struct ShaderVaryingData {

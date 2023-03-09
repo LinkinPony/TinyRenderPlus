@@ -17,11 +17,11 @@ class Rasterizer : public Render {
   std::shared_ptr<TGAImage> getRenderResult() override;
   void drawMesh(const Mesh& mesh) override;
   void applySceneConfig(std::shared_ptr<SceneConfig> config,std::shared_ptr<Shader> shader) override;
-  Rasterizer() = default;
+  Rasterizer();
   ~Rasterizer() override = default;
   private:
  private:
-  const float INF = 1e18;
+  const float INF = 1e9;
   const float keps = 1e-6;
   int width_;
   int height_;
@@ -35,7 +35,6 @@ class Rasterizer : public Render {
   std::vector<ShaderVaryingData> fragment_vary_data_;
   std::vector<ShaderVaryingData> culled_vertex_vary_data_;
   // todo: use point. avoid copy
-  ShaderUniformData shader_uniform_data_;
   std::vector<ShaderVaryingData> vertex_vary_data_;
 
  private:

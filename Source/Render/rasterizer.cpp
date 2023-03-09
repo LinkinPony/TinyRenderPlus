@@ -7,24 +7,30 @@ void Rasterizer::newFrame() {
 }
 
 std::shared_ptr<TGAImage> Rasterizer::getRenderResult() {
-  return std::shared_ptr<TGAImage>();
+  return render_buffer_;
 }
 
 void Rasterizer::drawMesh(const Mesh &mesh) {
+  cleanUpMesh();
   auto &vertices = mesh.get_vertices();
   auto &indices = mesh.get_indices();
   auto &textures = mesh.get_textures();
+  //std::cout << indices.size() << std::endl;
+  assert(shader_.get() != nullptr, "shader_ is null");
+  assert(render_buffer_.get() != nullptr, "render_buffer_ is null");
   shader_->getref_shader_uniform_data().m_model = mesh.get_m_model();
   shader_->getref_shader_uniform_data().generateVertexMatrix();
-  // assemble triangle
-  for (size_t i = 0; i < indices.size(); i += 3) {
+  //shader_->getref_shader_uniform_data().debugPrint();
+  //std::cout << shader_->getref_shader_uniform_data().m_vertex << std::endl;
+  //assemble triangle
+   for (size_t i = 0; i < indices.size(); i += 3) {
     Triangle tri(vertices[i], vertices[i + 1], vertices[i + 2]);
     vertex_vary_data_.emplace_back(tri);
   }
-  processAllVertex();
-  processAllTriangle();
-  processAllFragment();
-  drawAllFragment();
+   processAllVertex();
+   processAllTriangle();
+   processAllFragment();
+   drawAllFragment();
 }
 
 void Rasterizer::applySceneConfig(std::shared_ptr<SceneConfig> config,
@@ -33,10 +39,17 @@ void Rasterizer::applySceneConfig(std::shared_ptr<SceneConfig> config,
   width_ = config->width;
   height_ = config->height;
   auto &camera = config->camera_;
-  ShaderUniformData model_uniform;
+  shader_ = shader;
+  ShaderUniformData &model_uniform = shader_->getref_shader_uniform_data();
   model_uniform.m_view = camera->getLookAtMat();
   model_uniform.m_projection = Transform::projectionTrans(
       config->fov, config->aspect_ratio, config->zNear, config->zFar);
+  model_uniform.m_viewport = Transform::viewportTrans(width_, height_);
+}
+
+Rasterizer::Rasterizer() {
+  render_buffer_ = nullptr;
+  shader_ = nullptr;
 }
 
 void Rasterizer::cleanUpMesh() {
@@ -64,7 +77,8 @@ void Rasterizer::processSingleVertex(ShaderVaryingData &data) {
   data.skip |= skip_flag;
   if (!data.skip) {
     for (int i = 0; i < 3; i++) {
-      data.vertex[i] = shader_uniform_data_.m_viewport * data.vertex[i];
+      data.vertex[i] =
+          shader_->getref_shader_uniform_data().m_viewport * data.vertex[i];
     }
     for (int i = 0; i < 3; i++) {
       float w = data.vertex[i].w();
@@ -80,6 +94,7 @@ void Rasterizer::processSingleVertex(ShaderVaryingData &data) {
 }
 
 void Rasterizer::processAllVertex() {
+  std::cerr << "vertex size: " << vertex_vary_data_.size() << std::endl;
   for (auto &it : vertex_vary_data_) {
     processSingleVertex(it);
   }
@@ -100,6 +115,7 @@ void Rasterizer::processSingleTriange(ShaderVaryingData &data) {
                         vertex[2].y(),
                     }),
                     height - 1.f);
+  //std::cout << lx << " " << rx << " | " << ly << " " << ry << std::endl;
   for (int x = lx; x <= rx; x++) {
     for (int y = ly; y <= ry; y++) {
       auto temp_data = data;
@@ -110,6 +126,7 @@ void Rasterizer::processSingleTriange(ShaderVaryingData &data) {
   }
 }
 void Rasterizer::processAllTriangle() {
+  std::cerr << "triangle size: " << culled_vertex_vary_data_.size() << std::endl;
   for (auto &it : culled_vertex_vary_data_) {
     processSingleTriange(it);
   }
@@ -118,6 +135,7 @@ void Rasterizer::processSingleFragment(ShaderVaryingData &data) {
   shader_->fragmentShader(data);
 }
 void Rasterizer::processAllFragment() {
+  std::cerr << "fragment size: " << fragment_vary_data_.size() << std::endl;
   for (auto &it : fragment_vary_data_) {
     processSingleFragment(it);
   }
@@ -125,7 +143,7 @@ void Rasterizer::processAllFragment() {
 void Rasterizer::drawSingleFragment(ShaderVaryingData &data) {
   // data.debugPrint();
   if (data.skip) {
-    return;
+    //return;
   }
   int x = data.coord_x;
   int y = data.coord_y;
@@ -137,6 +155,8 @@ void Rasterizer::drawSingleFragment(ShaderVaryingData &data) {
     // data.output_color.a = 255;
     // color = color * 10;
     render_buffer_->set(x, y, color);
+    render_buffer_->set(x, y, TGAColor(255,255,255,255));
+    //std::cout << x << " " << y << std::endl;
     // data.debugPrint();
   }
   // TODO: delete debug output

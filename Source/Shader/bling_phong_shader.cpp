@@ -47,6 +47,8 @@ void BlingPhongShader::fragmentShader(ShaderVaryingData &data) {
   int x = data.coord_x;
   int y = data.coord_y;
   auto &vertex = data.vertex;
+  data.output_color = TGAColor(255, 255, 255,255);
+  //return;
   Eigen::Vector3f bary = Barycentric(vertex, Eigen::Vector2i(x, y));
   if (bary.x() < -eps || bary.y() < -eps || bary.z() < -eps) {
     data.skip = true;
@@ -63,7 +65,7 @@ void BlingPhongShader::fragmentShader(ShaderVaryingData &data) {
     cur_position = cur_position + (vertex[i].head<3>() * bary[i]);
     cur_norm = cur_norm + data.norm[i] * bary[i];
   }
-  data.texture_color = diffuse(diffuse_uv, data.object_id, uniform_data_);
+  //data.texture_color = diffuse(diffuse_uv, data.object_id, uniform_data_);
   // diffuse light
   float total_light = 0;
   for (auto light : uniform_data_.lights) {
@@ -86,13 +88,14 @@ void BlingPhongShader::fragmentShader(ShaderVaryingData &data) {
     data.skip = true;
     return;
   }
-  data.output_color = data.texture_color * total_light;
-  //  std::cout << x << " " << y << " " << data.output_color << "\n";
+  //data.output_color = data.texture_color * total_light;
+  data.output_color = TGAColor(255,255,255,255);
+    std::cout << x << " " << y << " " << data.output_color << "\n";
   //  std::cout << "total_light: " << total_light << " " << data.output_color <<
   //  "\n";
 }
 void BlingPhongShader::vertexShader(ShaderVaryingData &data) {
-  for (int i = 0; i < 3; i++) {
-    data.vertex[i] = uniform_data_.camera_MVP * data.vertex[i];
+    for (int i = 0; i < 3; i++) {
+    data.vertex[i] = uniform_data_.m_vertex * data.vertex[i];
   }
 }
