@@ -18,7 +18,7 @@ int main(int argc, char* argv[]) {
   std::shared_ptr<Render> render(new Rasterizer());
   auto sc = std::make_shared<Scene>(500, 500, 0.45f, shader, render);
   auto resource_pool = std::make_shared<TexturePool>();
-  auto model_one = Model("Resource/Model/rock/rock.obj", resource_pool,
+  auto model_one = Model("Resource/Model/nanosuit/nanosuit.obj", resource_pool,
                          Transform::modelTrans(0, 1));
   sc->addModel(model_one);
   // sc->addObject(std::make_unique<Object>("E:/Github/temp/Model/diablo/diablo3_pose"));

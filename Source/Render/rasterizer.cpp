@@ -141,9 +141,9 @@ void Rasterizer::processAllFragment() {
   }
 }
 void Rasterizer::drawSingleFragment(ShaderVaryingData &data) {
-  // data.debugPrint();
+   //data.debugPrint();
   if (data.skip) {
-    //return;
+    return;
   }
   int x = data.coord_x;
   int y = data.coord_y;
@@ -154,10 +154,10 @@ void Rasterizer::drawSingleFragment(ShaderVaryingData &data) {
     auto &color = data.output_color;
     // data.output_color.a = 255;
     // color = color * 10;
-    render_buffer_->set(x, y, color);
+    //render_buffer_->set(x, y, color);
     render_buffer_->set(x, y, TGAColor(255,255,255,255));
     //std::cout << x << " " << y << std::endl;
-    // data.debugPrint();
+     //data.debugPrint();
   }
   // TODO: delete debug output
 }
