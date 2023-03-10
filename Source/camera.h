@@ -12,6 +12,7 @@ class Camera {
   Eigen::Vector3f up_direction_;
   Eigen::Vector3f camera_right_direction_;
   Eigen::Vector3f camera_up_direction_;
+  Eigen::Vector3f world_up_direction_;
 
   float move_speed_ = 0.05;
 
@@ -54,6 +55,7 @@ class Camera {
   Eigen::Vector3f& getref_camera_target() { return camera_target_; }
   Eigen::Vector3f& getref_camera_direction() { return camera_direction_; }
   Eigen::Vector3f& getref_up_direction() { return up_direction_; }
+  Eigen::Vector3f& getref_world_up_direction() { return world_up_direction_; }
   Eigen::Vector3f& getref_camera_right_direction() {
     return camera_right_direction_;
   }

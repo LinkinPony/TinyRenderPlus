@@ -2,15 +2,15 @@
 
 const float PI = acos(-1.0);
 
-inline float radians(float degree) { return degree * PI / 2.0f; }
+inline float radians(float degree) { return degree * PI / 180.0f; }
 
 void Camera::updateCameraStatus() {
   // camera_direction_ = glm::normalize(camera_direction_);
   camera_target_ = camera_position_ + camera_direction_;
   camera_right_direction_ =
-      (up_direction_.cross(camera_direction_)).normalized();
+      (camera_direction_.cross(world_up_direction_)).normalized();
   camera_up_direction_ =
-      (camera_direction_.cross(camera_right_direction_)).normalized();
+      (camera_right_direction_.cross(camera_direction_)).normalized();
 }
 
 Camera::Camera(const Eigen::Vector3f& camera_position,
@@ -18,15 +18,17 @@ Camera::Camera(const Eigen::Vector3f& camera_position,
                const Eigen::Vector3f& up_direction)
     : camera_position_(camera_position),
       camera_direction_(camera_direction.normalized()),
-      up_direction_(up_direction.normalized()) {
+      up_direction_(up_direction),
+      world_up_direction_(up_direction) {
   updateCameraStatus();
 }
 
 Camera::Camera() {
-  auto camera_position = Eigen::Vector3f(0, 0, 3);
-  auto camera_direction = Eigen::Vector3f(0, 0, 1);
-  auto up_direction = Eigen::Vector3f(0, 1, 0);
-  Camera(camera_position, camera_direction, up_direction);
+  camera_position_ = Eigen::Vector3f(0, 0, 3);
+  camera_direction_ = Eigen::Vector3f(0, 0, -1);
+  up_direction_ = Eigen::Vector3f(0, 1, 0);
+  world_up_direction_ = Eigen::Vector3f(0, 1, 0);
+  updateCameraStatus();
 }
 
 Eigen::Matrix4f Camera::getLookAtMat() {
@@ -39,10 +41,10 @@ void Camera::moveByDirection(MoveDirection direction) {
   float speed = get_move_speed();
   switch (direction) {
     case Camera::MoveDirection::kLeft:
-      cam_pos += speed * getref_camera_right_direction();
+      cam_pos -= speed * getref_camera_right_direction();
       break;
     case Camera::MoveDirection::kRight:
-      cam_pos -= speed * getref_camera_right_direction();
+      cam_pos += speed * getref_camera_right_direction();
       break;
     case Camera::MoveDirection::kForward:
       cam_pos += speed * getref_camera_direction();
@@ -63,12 +65,19 @@ void Camera::moveByDirection(MoveDirection direction) {
 }
 
 void Camera::moveByEulerianAngles(float pitch_degree, float yaw_degree) {
+  if (pitch_degree > 89.0f) {
+    pitch_degree = 89.0f;
+  }
+  if (pitch_degree < -89.0f) {
+    pitch_degree = -89.0f;
+  }
   Eigen::Vector3f direction;
   float pitch_radian = radians(pitch_degree);
   float yaw_radian = radians(yaw_degree);
-  direction.x() = -cos(pitch_radian) * cos(yaw_radian);
-  direction.y() = -sin(pitch_radian);
+  direction.x() = cos(pitch_radian) * cos(yaw_radian);
+  direction.y() = sin(pitch_radian);
   direction.z() = cos(pitch_radian) * sin(yaw_radian);
   direction = direction.normalized();
   set_camera_direction(direction);
+  updateCameraStatus();
 }

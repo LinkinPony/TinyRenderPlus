@@ -36,16 +36,12 @@ void Editor::loadScene(std::shared_ptr<Scene> scene) {
   // TODO: move this to somewhere else
   this->scene_ = scene;
   config_ = scene_->get_config();
-  config_->camera_->getref_camera_direction() = Eigen::Vector3f(0, 0, -1);
-  config_->camera_->getref_camera_position() = Eigen::Vector3f(0, 0, 3);
-  config_->camera_->getref_up_direction() = Eigen::Vector3f(0, 1, 0);
   config_->light_position = Eigen::Vector3f(200, 200, 200);
   config_->light_intensity = 500;
   config_->fov = 45;
   config_->zNear = 0.1;
   config_->zFar = 100;
   auto light1 = Light(config_->light_position, config_->light_intensity);
-  scene->addLight(light1);
 }
 void processInput(GLFWwindow* window, std::shared_ptr<Camera> camera);
 void bindVector3fToInputBox(Eigen::Vector3f& target,
@@ -106,7 +102,7 @@ int Editor::run() {
   while (!glfwWindowShouldClose(window)) {
     float cur_time = glfwGetTime();
     float delta_time = cur_time - last_time;
-    camera->set_move_speed(delta_time * 0.01);
+    camera->set_move_speed(delta_time * 0.05);
     camera->moveByEulerianAngles(config_->pitch,config_->yaw);
     std::cout << config_->yaw << " " << config_->pitch << std::endl;
     if (capture_cursor_flag_ == true) {
@@ -169,10 +165,12 @@ void Editor::buildConfigWidget() {
       scene_->get_config()->camera_->getref_camera_direction(),
       "camera direction", -50, 50);
   bindVector3fToInputBox(
-      scene_->get_config()->camera_->getref_camera_position(),
-      "camera position", -50, 50);
-  bindVector3fToInputBox(scene_->get_config()->camera_->getref_up_direction(),
-                         "up direction", -1, 1);
+      scene_->get_config()->camera_->getref_world_up_direction(),
+      "world up direction", -50, 50);
+  //bindVector3fToInputBox(scene_->get_config()->camera_->getref_up_direction(),
+  //                       "up direction", -1, 1); 
+  bindVector3fToInputBox(scene_->get_config()->camera_->getref_camera_right_direction(),
+                         "right direction", -1, 1);
   
   ImGui::End();
 }
@@ -184,7 +182,7 @@ void Editor::mouseCallback(double xpos, double ypos) {
   float yoffset = last_y - ypos;
   last_x = xpos;
   last_y = ypos;
-  float sensitivity = 0.01;
+  float sensitivity = 0.1;
   xoffset *= sensitivity;
   yoffset *= sensitivity;
   auto& yaw = config_->yaw;

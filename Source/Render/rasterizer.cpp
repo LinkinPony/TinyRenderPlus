@@ -66,7 +66,7 @@ void Rasterizer::processSingleVertex(ShaderVaryingData &data) {
   int out_of_range_cnt = 0;
   for (int i = 0; i < 3; i++) {
     float absw = fabs(data.vertex[i].w());
-    if (absw < keps) {
+    if (data.vertex[i].w() > keps) {
       skip_flag = true;
     }
     if (fabs(data.vertex[i].x()) > absw || fabs(data.vertex[i].y()) > absw) {
@@ -115,7 +115,7 @@ void Rasterizer::processSingleTriange(ShaderVaryingData &data) {
                         vertex[2].y(),
                     }),
                     height - 1.f);
-  //std::cout << lx << " " << rx << " | " << ly << " " << ry << std::endl;
+
   for (int x = lx; x <= rx; x++) {
     for (int y = ly; y <= ry; y++) {
       auto temp_data = data;
@@ -141,7 +141,6 @@ void Rasterizer::processAllFragment() {
   }
 }
 void Rasterizer::drawSingleFragment(ShaderVaryingData &data) {
-   //data.debugPrint();
   if (data.skip) {
     return;
   }
@@ -152,14 +151,9 @@ void Rasterizer::drawSingleFragment(ShaderVaryingData &data) {
   if (z_buffer_[idx] > data.depth) {
     z_buffer_[idx] = data.depth;
     auto &color = data.output_color;
-    // data.output_color.a = 255;
-    // color = color * 10;
     //render_buffer_->set(x, y, color);
     render_buffer_->set(x, y, TGAColor(255,255,255,255));
-    //std::cout << x << " " << y << std::endl;
-     //data.debugPrint();
   }
-  // TODO: delete debug output
 }
 void Rasterizer::drawAllFragment() {
   for (auto &it : fragment_vary_data_) {
