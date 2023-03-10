@@ -53,7 +53,6 @@ class Scene {
   int get_height();
   void set_height(int height);
   void set_width(int width);
-  void set_camera_mvp_matrix(const Eigen::Matrix4f &mat);
   std::shared_ptr<SceneConfig> get_config() { return config_; }
   std::shared_ptr<TGAImage> get_render_buffer() {
     return render_->getRenderResult();

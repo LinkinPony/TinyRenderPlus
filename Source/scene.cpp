@@ -43,9 +43,6 @@ void Scene::set_width(int width) {
   config_->width = width;
   config_->aspect_ratio = static_cast<float>(config_->width) / config_->height;
 }
-void Scene::set_camera_mvp_matrix(const Eigen::Matrix4f &mat) {
-  shader_uniform_data_.camera_MVP = mat;
-}
 
 void Scene::writeTGAImage(const std::string &filename) {
   this->render_buffer_->write_tga_file(filename.c_str());

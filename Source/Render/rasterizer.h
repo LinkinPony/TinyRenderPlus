@@ -23,6 +23,8 @@ class Rasterizer : public Render {
  private:
   const float INF = 1e9;
   const float keps = 1e-6;
+
+  const static int kThreadNum = 8;
   int width_;
   int height_;
 
@@ -32,7 +34,7 @@ class Rasterizer : public Render {
  private:
   // TODO: vector seems a little bit slow, need profiling
   std::vector<float> z_buffer_;
-  std::vector<ShaderVaryingData> fragment_vary_data_;
+  std::vector<ShaderVaryingData> fragment_vary_data_[kThreadNum];
   std::vector<ShaderVaryingData> culled_vertex_vary_data_;
   // todo: use point. avoid copy
   std::vector<ShaderVaryingData> vertex_vary_data_;
@@ -45,9 +47,10 @@ class Rasterizer : public Render {
   void processSingleTriange(ShaderVaryingData &data);
   void processAllTriangle();
   void processSingleFragment(ShaderVaryingData &data);
+  void processFragmentBlock(std::vector<ShaderVaryingData> &vec_data);
   void processAllFragment();
   void drawSingleFragment(ShaderVaryingData &data);
-  void drawAllFragment();
+  //void drawAllFragment();
 };
 
 #endif //TINYRENDERPLUS_RENDER_RENDER_RASTERIZER_H_

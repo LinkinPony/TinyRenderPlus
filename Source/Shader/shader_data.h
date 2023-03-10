@@ -30,7 +30,6 @@ struct ShaderUniformData {
       u_diffuse;  // diffuse map for each object. indexed with object id.
   std::vector<std::shared_ptr<TGAImage> >
       u_normal_map;  // normal map for each object. indexed with object id.
-  Eigen::Matrix4f camera_MVP;  // TODO: delete this
   Eigen::Matrix4f m_model;
   Eigen::Matrix4f m_view;
   Eigen::Matrix4f m_projection;

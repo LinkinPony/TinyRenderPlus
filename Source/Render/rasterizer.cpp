@@ -1,5 +1,12 @@
 #include <rasterizer.h>
 
+#include <future>
+#include <chrono>
+#include <thread>
+#include <functional>
+
+
+
 void Rasterizer::newFrame() {
   // TODO: check if there's memory leak
   render_buffer_ = std::make_shared<TGAImage>(width_, height_, TGAImage::RGB);
@@ -18,8 +25,10 @@ void Rasterizer::drawMesh(const Mesh &mesh) {
   //std::cout << indices.size() << std::endl;
   assert(shader_.get() != nullptr, "shader_ is null");
   assert(render_buffer_.get() != nullptr, "render_buffer_ is null");
-  shader_->getref_shader_uniform_data().m_model = mesh.get_m_model();
-  shader_->getref_shader_uniform_data().generateVertexMatrix();
+  auto &uniform = shader_->getref_shader_uniform_data();
+  uniform.m_model = mesh.get_m_model();
+  uniform.generateVertexMatrix();
+  
   //shader_->getref_shader_uniform_data().debugPrint();
   //std::cout << shader_->getref_shader_uniform_data().m_vertex << std::endl;
   //assemble triangle
@@ -30,7 +39,7 @@ void Rasterizer::drawMesh(const Mesh &mesh) {
    processAllVertex();
    processAllTriangle();
    processAllFragment();
-   drawAllFragment();
+   //drawAllFragment();
 }
 
 void Rasterizer::applySceneConfig(std::shared_ptr<SceneConfig> config,
@@ -53,7 +62,9 @@ Rasterizer::Rasterizer() {
 }
 
 void Rasterizer::cleanUpMesh() {
-  fragment_vary_data_.clear();
+  for (int i = 0; i < kThreadNum; i++) {
+    fragment_vary_data_[i].clear();
+  }
   culled_vertex_vary_data_.clear();
   vertex_vary_data_.clear();
 }
@@ -121,7 +132,8 @@ void Rasterizer::processSingleTriange(ShaderVaryingData &data) {
       auto temp_data = data;
       temp_data.coord_x = x;
       temp_data.coord_y = y;
-      fragment_vary_data_.emplace_back(temp_data);
+      int index = x * kThreadNum / width;
+      fragment_vary_data_[index].emplace_back(temp_data);
     }
   }
 }
@@ -133,13 +145,26 @@ void Rasterizer::processAllTriangle() {
 }
 void Rasterizer::processSingleFragment(ShaderVaryingData &data) {
   shader_->fragmentShader(data);
+  drawSingleFragment(data);
 }
-void Rasterizer::processAllFragment() {
-  std::cerr << "fragment size: " << fragment_vary_data_.size() << std::endl;
-  for (auto &it : fragment_vary_data_) {
+void Rasterizer::processFragmentBlock(
+    std::vector<ShaderVaryingData> &vec_data) {
+  for (auto &it : vec_data) {
     processSingleFragment(it);
   }
 }
+void Rasterizer::processAllFragment() {
+  std::vector<std::future<void> > thread_queue;
+  for (int i = 0; i < kThreadNum; i++) {
+    thread_queue.push_back(std::async(std::launch::async,
+                                      &Rasterizer::processFragmentBlock, this,
+                                      std::ref(fragment_vary_data_[i])));
+  }
+  for (auto &it : thread_queue) {
+    it.wait();
+  }
+}
+
 void Rasterizer::drawSingleFragment(ShaderVaryingData &data) {
   if (data.skip) {
     return;
@@ -155,8 +180,9 @@ void Rasterizer::drawSingleFragment(ShaderVaryingData &data) {
     render_buffer_->set(x, y, TGAColor(255,255,255,255));
   }
 }
-void Rasterizer::drawAllFragment() {
-  for (auto &it : fragment_vary_data_) {
-    drawSingleFragment(it);
-  }
-}
+//void Rasterizer::drawAllFragment() {
+//  for (int i = 0;i < kThreadNum;i++)
+//    for (auto &it : fragment_vary_data_[i]) {
+//    drawSingleFragment(it);
+//  }
+//}
