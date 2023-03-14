@@ -8,9 +8,10 @@
 #include <shader.h>
 #include <shader_data.h>
 #include <tgaimage.h>
-
+#include <thread_pool.h>
 #include <eigen3/Eigen/Eigen>
 #include <iostream>
+#include <thread>
 class Rasterizer : public Render {
  public:
   void newFrame() override;
@@ -29,6 +30,7 @@ class Rasterizer : public Render {
   int height_;
 
  private:
+  ThreadPool::ThreadPool thread_pool_;
   std::shared_ptr<TGAImage> render_buffer_;
   std::shared_ptr<Shader> shader_;
  private:

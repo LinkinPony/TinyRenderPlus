@@ -8,6 +8,7 @@
 #include <eigen3/Eigen/Eigen>
 #include <iostream>
 #include <sstream>
+#include <cassert>
 std::string Scene::getMatrixInfo() {
   Eigen::IOFormat CleanFmt(4, 0, ", ", "\n", "[", "]");
   std::stringstream result;
@@ -15,7 +16,7 @@ std::string Scene::getMatrixInfo() {
   return result.str();
 }
 void Scene::nextFrame() {
-  assert(render_ != nullptr, "render_ is null.");
+  assert(render_ != nullptr);
   render_->applySceneConfig(config_, shader_);
   render_->newFrame(); 
   for (auto &it_model : model_) {

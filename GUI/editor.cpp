@@ -104,7 +104,7 @@ int Editor::run() {
     float delta_time = cur_time - last_time;
     camera->set_move_speed(delta_time * 0.05);
     camera->moveByEulerianAngles(config_->pitch,config_->yaw);
-    std::cout << config_->yaw << " " << config_->pitch << std::endl;
+//    std::cout << config_->yaw << " " << config_->pitch << std::endl;
     if (capture_cursor_flag_ == true) {
       glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
       glfwSetCursorPosCallback(window, glmouseCallbackWrapper);
@@ -130,7 +130,7 @@ int Editor::run() {
     // Show render result
 
     buildRenderResultWidget();
-    buildConfigWidget();
+//    buildConfigWidget();
     //ImGui::ShowDemoWindow();
     ImGui::Render();
     ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
